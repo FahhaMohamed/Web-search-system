@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  map1:
+    build: ./map-node
+    volumes:
+      - ./dfs:/dfs
+    command: node mapNode.js split1.txt
+
+  map2:
+    build: ./map-node
+    volumes:
+      - ./dfs:/dfs
+    command: node mapNode.js split2.txt
+
+  reduce:
+    build: ./reduce-node
+    volumes:
+      - ./dfs:/dfs
+    command: node reduceNode.js
+
+  search:
+    build: ./search-api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./dfs:/dfs
+    command: node searchApi.js

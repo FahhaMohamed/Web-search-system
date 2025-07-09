@@ -1,0 +1,4 @@
+FROM node:18
+WORKDIR /app
+COPY reduceNode.js .
+CMD ["node", "reduceNode.js"]

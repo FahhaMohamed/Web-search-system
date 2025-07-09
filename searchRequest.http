@@ -1,0 +1,25 @@
+GET http://localhost:3000/search?q=technology
+
+### IT IS ONLY IN THE SPLIT-1
+GET http://localhost:3000/search?q=algorithm
+
+### IT IS ONLY IN THE SPLIT-2
+GET http://localhost:3000/search?q=biology
+
+###
+GET http://localhost:3000/search?q=engineering
+
+###
+GET http://localhost:3000/search?q=research
+
+###
+GET http://localhost:3000/search?q=physics
+
+### IT IS ONLY IN THE SPLIT-1
+GET http://localhost:3000/search?q=program
+
+### IT IS ONLY IN THE SPLIT-1
+GET http://localhost:3000/search?q=software
+
+###
+GET http://localhost:3000/search?q=0

@@ -1,0 +1,4 @@
+FROM node:18
+WORKDIR /app
+COPY mapNode.js .
+CMD ["node", "mapNode.js", "split1.txt"]
