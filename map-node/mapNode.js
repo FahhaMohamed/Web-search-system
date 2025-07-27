@@ -25,30 +25,32 @@ async function getTask() {
 }
 
 (async () => {
-  const inputFile = await getTask();
-  if (!inputFile) {
-    console.log("[Error]: No input file specified.");
-    return;
-  }
+  while (true) {
+    const inputFile = await getTask();
+    if (!inputFile) {
+      console.log("[Error]: No input file specified.");
+      return;
+    }
 
-  const inputPath = path.join(__dirname, "../dfs", inputFile);
-  const outputPath = path.join(__dirname, "../dfs", `map-${inputFile}`);
-  try {
-    const text = fs.readFileSync(inputPath, "utf-8");
-    const words = text.toLowerCase().match(/\b\w+\b/g) || [];
-    const output = {};
+    const inputPath = path.join(__dirname, "../dfs", inputFile);
+    const outputPath = path.join(__dirname, "../dfs", `map-${inputFile}`);
+    try {
+      const text = fs.readFileSync(inputPath, "utf-8");
+      const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+      const output = {};
 
-    words.forEach((word) => {
-      if (!output[word]) {
-        output[word] = [];
-      }
-      output[word].push(inputFile);
-    });
+      words.forEach((word) => {
+        if (!output[word]) {
+          output[word] = [];
+        }
+        output[word].push(inputFile);
+      });
 
-    fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
-    console.log(`Map file created: ${outputPath}`);
-  } catch (err) {
-    console.error(`Error processing file: ${err.message}`);
-    process.exit(1);
+      fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
+      console.log(`Map file created: ${outputPath}`);
+    } catch (err) {
+      console.error(`Error processing file: ${err.message}`);
+      process.exit(1);
+    }
   }
 })();
