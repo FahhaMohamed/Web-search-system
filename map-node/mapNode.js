@@ -2,23 +2,38 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 
-const inputFile = process.argv[2];
+// const inputFile = process.argv[2];
 
 const nameNodeUrl = "http://namenode:4000";
+const workerId = `map-worker-${Math.random().toString(36).substring(7)}`;
 
-if (!inputFile) {
-  console.error("Error: No input file specified.");
-  process.exit(1);
+async function getTask() {
+  try {
+    const response = await axios.get(
+      `${nameNodeUrl}/getTask?workerId=${workerId}`
+    );
+
+    return response.data.fileName;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      console.log("[Error] No more tasks available.");
+      return null;
+    }
+    console.error("[Error] fetching task from NameNode:", error.message);
+    return null;
+  }
 }
 
-const inputPath = path.join(__dirname, "../dfs", inputFile);
-const outputPath = path.join(__dirname, "../dfs", `map-${inputFile}`);
-
 (async () => {
-  try {
-    const response = await axios.get(`${nameNodeUrl}/success`);
-    console.log("[GET] ", response.data.message);
+  const inputFile = await getTask();
+  if (!inputFile) {
+    console.log("[Error]: No input file specified.");
+    return;
+  }
 
+  const inputPath = path.join(__dirname, "../dfs", inputFile);
+  const outputPath = path.join(__dirname, "../dfs", `map-${inputFile}`);
+  try {
     const text = fs.readFileSync(inputPath, "utf-8");
     const words = text.toLowerCase().match(/\b\w+\b/g) || [];
     const output = {};

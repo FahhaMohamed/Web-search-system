@@ -8,6 +8,8 @@ const urls = [
   "https://en.wikipedia.org/wiki/Science",
 ];
 
+const nameNodeUrl = "http://namenode:4000";
+
 const crawler = async () => {
   log("Crawler started.");
   try {
@@ -19,8 +21,11 @@ const crawler = async () => {
         log(`Fetched ${urls[i]} with StatusCode: ${res.status}`);
         const $ = cheerio.load(res.data);
         const bodyContent = $("body").text();
-        const filePath = `../dfs/split${i+1}.txt`;
+        const filePath = `../dfs/split${i + 1}.txt`;
         await fs.promises.writeFile(filePath, bodyContent);
+        const response = await axios.post(`${nameNodeUrl}/register`, { fileName: `split${i+1}.txt` });
+        console.log("[POST] ", response.data.files);
+
         log(`Successfully wrote to ${filePath}`);
       } catch (err) {
         log(`Error processing ${urls[i]}: ${err.message}`);

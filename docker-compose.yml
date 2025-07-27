@@ -3,8 +3,16 @@ version: '3.8'
 networks:
   my-network:
 services:
+  cleaner:
+    build: .
+    volumes:
+      - ./dfs:/dfs
+    entrypoint: ["node", "server.js"] 
+
   namenode:
     build: ./name-node
+    depends_on:
+      - cleaner
     ports:
       - "4000:4000"
     networks:
@@ -14,12 +22,18 @@ services:
     command: node nameNode.js
   crawler:
     build: ./crawler
+    depends_on:
+      - namenode
+    networks:
+      - my-network
     volumes:
       - ./dfs:/dfs
     command: node crawler.js
 
   map1:
     build: ./map-node
+    depends_on:
+      - crawler
     networks:
       - my-network
     volumes:
@@ -35,6 +49,8 @@ services:
 
   map2:
     build: ./map-node
+    depends_on:
+      - crawler
     networks:
       - my-network
     volumes:
@@ -50,6 +66,9 @@ services:
 
   reduce:
     build: ./reduce-node
+    depends_on:
+      - map1
+      - map2
     volumes:
       - ./dfs:/dfs
     command: sh -c "
@@ -63,6 +82,8 @@ services:
 
   search:
     build: ./search-api
+    depends_on:
+      - reduce
     ports:
       - "3000:3000"
     volumes:
