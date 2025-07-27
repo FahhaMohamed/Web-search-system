@@ -30,7 +30,7 @@ services:
       - ./dfs:/dfs
     command: node crawler.js
 
-  map1:
+  map:
     build: ./map-node
     depends_on:
       - crawler
@@ -39,36 +39,19 @@ services:
     volumes:
       - ./dfs:/dfs
     command: sh -c "
-      echo 'Waiting for split1.txt...';
-      while [ ! -f /dfs/split1.txt ] || [ ! -s /dfs/split1.txt ]; do
-        sleep 2;
-        echo 'Still waiting for split1.txt...';
+      echo 'Waiting for split files...';
+      while [ ! -f /dfs/split1.txt ] || [ ! -s /dfs/split1.txt ] ||
+          [ ! -f /dfs/split2.txt ] || [ ! -s /dfs/split2.txt ]; do
+      sleep 2;
+      echo 'Still waiting for split files...';
       done;
-      echo 'split1.txt found, starting processing...';
-      node mapNode.js split1.txt"
-
-  map2:
-    build: ./map-node
-    depends_on:
-      - crawler
-    networks:
-      - my-network
-    volumes:
-      - ./dfs:/dfs
-    command: sh -c "
-      echo 'Waiting for split2.txt...';
-      while [ ! -f /dfs/split2.txt ] || [ ! -s /dfs/split2.txt ]; do
-        sleep 2;
-        echo 'Still waiting for split2.txt...';
-      done;
-      echo 'split2.txt found, starting processing...';
-      node mapNode.js split2.txt"
+      echo 'Split files found, starting processing...';
+      node mapNode.js"
 
   reduce:
     build: ./reduce-node
     depends_on:
-      - map1
-      - map2
+      - map
     volumes:
       - ./dfs:/dfs
     command: sh -c "
