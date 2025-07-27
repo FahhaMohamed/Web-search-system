@@ -1,5 +1,17 @@
 version: '3.8'
+
+networks:
+  my-network:
 services:
+  namenode:
+    build: ./name-node
+    ports:
+      - "4000:4000"
+    networks:
+      - my-network
+    volumes:
+      - ./dfs:/dfs
+    command: node nameNode.js
   crawler:
     build: ./crawler
     volumes:
@@ -8,6 +20,8 @@ services:
 
   map1:
     build: ./map-node
+    networks:
+      - my-network
     volumes:
       - ./dfs:/dfs
     command: sh -c "
@@ -21,6 +35,8 @@ services:
 
   map2:
     build: ./map-node
+    networks:
+      - my-network
     volumes:
       - ./dfs:/dfs
     command: sh -c "
