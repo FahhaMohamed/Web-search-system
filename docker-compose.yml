@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   crawler:
     build: ./crawler
@@ -11,26 +10,40 @@ services:
     build: ./map-node
     volumes:
       - ./dfs:/dfs
-    command: ./wait-for-file.sh /dfs/split1.txt node mapNode.js split1.txt
-    depends_on:
-      - crawler
+    command: sh -c "
+      echo 'Waiting for split1.txt...';
+      while [ ! -f /dfs/split1.txt ] || [ ! -s /dfs/split1.txt ]; do
+        sleep 2;
+        echo 'Still waiting for split1.txt...';
+      done;
+      echo 'split1.txt found, starting processing...';
+      node mapNode.js split1.txt"
 
   map2:
     build: ./map-node
     volumes:
       - ./dfs:/dfs
-    command: ./wait-for-file.sh /dfs/split2.txt node mapNode.js split2.txt
-    depends_on:
-      - crawler
+    command: sh -c "
+      echo 'Waiting for split2.txt...';
+      while [ ! -f /dfs/split2.txt ] || [ ! -s /dfs/split2.txt ]; do
+        sleep 2;
+        echo 'Still waiting for split2.txt...';
+      done;
+      echo 'split2.txt found, starting processing...';
+      node mapNode.js split2.txt"
 
   reduce:
     build: ./reduce-node
     volumes:
       - ./dfs:/dfs
-    command: ./wait-for-file.sh /dfs/map-split1.txt node reduceNode.js
-    depends_on:
-      - map1
-      - map2
+    command: sh -c "
+      echo 'Waiting for map outputs...';
+      while [ ! -f /dfs/map-split1.txt ] || [ ! -f /dfs/map-split2.txt ]; do
+        sleep 2;
+        echo 'Waiting for map-split1.txt and map-split2.txt...';
+      done;
+      echo 'Map outputs found, starting reduce...';
+      node reduceNode.js"
 
   search:
     build: ./search-api
@@ -38,6 +51,11 @@ services:
       - "3000:3000"
     volumes:
       - ./dfs:/dfs
-    command: node searchApi.js
-    depends_on:
-      - reduce
+    command: sh -c "
+      echo 'Waiting for index.json...';
+      while [ ! -f /dfs/index.json ]; do
+        sleep 2;
+        echo 'Still waiting for index.json...';
+      done;
+      echo 'Index found, starting search API...';
+      node searchApi.js"
