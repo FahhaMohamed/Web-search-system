@@ -1,22 +1,36 @@
 version: '3.8'
+
 services:
+  crawler:
+    build: ./crawler
+    volumes:
+      - ./dfs:/dfs
+    command: node crawler.js
+
   map1:
     build: ./map-node
     volumes:
       - ./dfs:/dfs
-    command: node mapNode.js split1.txt
+    command: ./wait-for-file.sh /dfs/split1.txt node mapNode.js split1.txt
+    depends_on:
+      - crawler
 
   map2:
     build: ./map-node
     volumes:
       - ./dfs:/dfs
-    command: node mapNode.js split2.txt
+    command: ./wait-for-file.sh /dfs/split2.txt node mapNode.js split2.txt
+    depends_on:
+      - crawler
 
   reduce:
     build: ./reduce-node
     volumes:
       - ./dfs:/dfs
-    command: node reduceNode.js
+    command: ./wait-for-file.sh /dfs/map-split1.txt node reduceNode.js
+    depends_on:
+      - map1
+      - map2
 
   search:
     build: ./search-api
@@ -25,3 +39,5 @@ services:
     volumes:
       - ./dfs:/dfs
     command: node searchApi.js
+    depends_on:
+      - reduce

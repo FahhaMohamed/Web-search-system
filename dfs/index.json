@@ -631,6 +631,7 @@
     "split2.txt"
   ],
   "160": [
+    "split1.txt",
     "split2.txt"
   ],
   "161": [
@@ -703,7 +704,6 @@
     "split2.txt"
   ],
   "182": [
-    "split1.txt",
     "split2.txt"
   ],
   "183": [
@@ -726,7 +726,6 @@
     "split2.txt"
   ],
   "189": [
-    "split1.txt",
     "split2.txt"
   ],
   "190": [
@@ -800,7 +799,6 @@
     "split2.txt"
   ],
   "212": [
-    "split1.txt",
     "split2.txt"
   ],
   "213": [
@@ -837,12 +835,14 @@
     "split2.txt"
   ],
   "223": [
+    "split1.txt",
     "split2.txt"
   ],
   "224": [
     "split2.txt"
   ],
   "225": [
+    "split1.txt",
     "split2.txt"
   ],
   "226": [
@@ -981,20 +981,16 @@
     "split2.txt"
   ],
   "270": [
+    "split1.txt",
     "split2.txt"
   ],
   "271": [
-    "split1.txt",
     "split2.txt"
   ],
   "273": [
-    "split1.txt",
     "split2.txt"
   ],
   "274": [
-    "split2.txt"
-  ],
-  "275": [
     "split2.txt"
   ],
   "276": [
@@ -1022,9 +1018,6 @@
     "split1.txt"
   ],
   "302": [
-    "split1.txt"
-  ],
-  "304": [
     "split1.txt"
   ],
   "305": [
@@ -1055,13 +1048,8 @@
   "322": [
     "split2.txt"
   ],
-  "323": [
-    "split1.txt"
-  ],
-  "329": [
-    "split1.txt"
-  ],
   "332": [
+    "split1.txt",
     "split2.txt"
   ],
   "333": [
@@ -1070,10 +1058,10 @@
   "335": [
     "split2.txt"
   ],
-  "337": [
+  "336": [
     "split2.txt"
   ],
-  "339": [
+  "337": [
     "split2.txt"
   ],
   "340": [
@@ -1135,6 +1123,9 @@
   "391": [
     "split1.txt"
   ],
+  "394": [
+    "split1.txt"
+  ],
   "400": [
     "split1.txt"
   ],
@@ -1146,9 +1137,6 @@
   ],
   "408": [
     "split1.txt",
-    "split2.txt"
-  ],
-  "414": [
     "split2.txt"
   ],
   "415": [
@@ -1173,17 +1161,14 @@
   "428": [
     "split1.txt"
   ],
+  "430": [
+    "split2.txt"
+  ],
   "444": [
     "split1.txt"
   ],
   "445": [
     "split1.txt"
-  ],
-  "447": [
-    "split2.txt"
-  ],
-  "450": [
-    "split2.txt"
   ],
   "451": [
     "split2.txt"
@@ -1226,6 +1211,9 @@
   "483": [
     "split1.txt"
   ],
+  "485": [
+    "split2.txt"
+  ],
   "486": [
     "split2.txt"
   ],
@@ -1237,9 +1225,6 @@
     "split2.txt"
   ],
   "504": [
-    "split2.txt"
-  ],
-  "510": [
     "split2.txt"
   ],
   "515": [
@@ -1260,6 +1245,9 @@
   ],
   "530": [
     "split2.txt"
+  ],
+  "533": [
+    "split1.txt"
   ],
   "534": [
     "split1.txt"
@@ -1296,6 +1284,15 @@
   "554": [
     "split2.txt"
   ],
+  "556": [
+    "split2.txt"
+  ],
+  "557": [
+    "split1.txt"
+  ],
+  "566": [
+    "split1.txt"
+  ],
   "567": [
     "split2.txt"
   ],
@@ -1311,13 +1308,13 @@
   "583": [
     "split1.txt"
   ],
-  "584": [
-    "split2.txt"
-  ],
   "588": [
     "split2.txt"
   ],
   "589": [
+    "split2.txt"
+  ],
+  "591": [
     "split2.txt"
   ],
   "593": [
@@ -1327,8 +1324,7 @@
     "split2.txt"
   ],
   "596": [
-    "split1.txt",
-    "split2.txt"
+    "split1.txt"
   ],
   "604": [
     "split1.txt"
@@ -1354,6 +1350,9 @@
   "634": [
     "split2.txt"
   ],
+  "635": [
+    "split2.txt"
+  ],
   "636": [
     "split2.txt"
   ],
@@ -1372,6 +1371,12 @@
   "658": [
     "split2.txt"
   ],
+  "661": [
+    "split2.txt"
+  ],
+  "664": [
+    "split2.txt"
+  ],
   "665": [
     "split2.txt"
   ],
@@ -1379,9 +1384,6 @@
     "split2.txt"
   ],
   "674": [
-    "split2.txt"
-  ],
-  "677": [
     "split2.txt"
   ],
   "679": [
@@ -1392,6 +1394,9 @@
   ],
   "691": [
     "split1.txt",
+    "split2.txt"
+  ],
+  "698": [
     "split2.txt"
   ],
   "701": [
@@ -1412,7 +1417,10 @@
   "715": [
     "split1.txt"
   ],
-  "739": [
+  "725": [
+    "split2.txt"
+  ],
+  "736": [
     "split1.txt"
   ],
   "743": [
@@ -1424,14 +1432,14 @@
   "748": [
     "split2.txt"
   ],
-  "765": [
-    "split2.txt"
+  "767": [
+    "split1.txt"
   ],
   "800": [
     "split2.txt"
   ],
-  "825": [
-    "split2.txt"
+  "813": [
+    "split1.txt"
   ],
   "835": [
     "split1.txt"
@@ -1442,32 +1450,20 @@
   "848": [
     "split2.txt"
   ],
-  "849": [
-    "split1.txt"
-  ],
   "853": [
     "split2.txt"
   ],
-  "854": [
-    "split1.txt"
-  ],
   "865": [
-    "split1.txt"
-  ],
-  "903": [
     "split1.txt"
   ],
   "914": [
     "split2.txt"
   ],
-  "949": [
-    "split2.txt"
-  ],
   "966": [
     "split2.txt"
   ],
-  "975": [
-    "split2.txt"
+  "969": [
+    "split1.txt"
   ],
   "978": [
     "split1.txt",
@@ -1638,8 +1634,14 @@
   "1553": [
     "split2.txt"
   ],
+  "1555": [
+    "split2.txt"
+  ],
   "1560": [
     "split2.txt"
+  ],
+  "1593": [
+    "split1.txt"
   ],
   "1595": [
     "split1.txt"
@@ -1684,12 +1686,6 @@
     "split2.txt"
   ],
   "1736": [
-    "split2.txt"
-  ],
-  "1743": [
-    "split1.txt"
-  ],
-  "1749": [
     "split2.txt"
   ],
   "1776": [
@@ -2138,6 +2134,9 @@
     "split1.txt",
     "split2.txt"
   ],
+  "2341": [
+    "split2.txt"
+  ],
   "2350": [
     "split1.txt"
   ],
@@ -2146,9 +2145,6 @@
   ],
   "2468": [
     "split1.txt"
-  ],
-  "2582": [
-    "split2.txt"
   ],
   "2701": [
     "split1.txt"
@@ -2274,7 +2270,7 @@
   "6313": [
     "split2.txt"
   ],
-  "6405": [
+  "6468": [
     "split2.txt"
   ],
   "6502": [
@@ -2473,7 +2469,7 @@
   "14584": [
     "split2.txt"
   ],
-  "14603": [
+  "14610": [
     "split1.txt"
   ],
   "16797": [
@@ -2497,7 +2493,7 @@
   "20093": [
     "split2.txt"
   ],
-  "20344": [
+  "20418": [
     "split2.txt"
   ],
   "20968": [
@@ -2713,7 +2709,7 @@
   "124782": [
     "split2.txt"
   ],
-  "143800": [
+  "143853": [
     "split1.txt"
   ],
   "157889": [
@@ -2749,7 +2745,7 @@
   "352843": [
     "split2.txt"
   ],
-  "413182": [
+  "413404": [
     "split1.txt"
   ],
   "511229": [
@@ -2758,7 +2754,7 @@
   "515040": [
     "split2.txt"
   ],
-  "578638": [
+  "578630": [
     "split1.txt"
   ],
   "588406": [
@@ -2767,7 +2763,7 @@
   "599864": [
     "split2.txt"
   ],
-  "641528": [
+  "641938": [
     "split2.txt"
   ],
   "707574": [
@@ -2900,14 +2896,14 @@
   "15319191": [
     "split2.txt"
   ],
+  "17097815": [
+    "split2.txt"
+  ],
   "17136067": [
     "split1.txt"
   ],
   "17136077": [
     "split1.txt"
-  ],
-  "17265576": [
-    "split2.txt"
   ],
   "17436393": [
     "split2.txt"
@@ -2930,7 +2926,7 @@
   "19980301": [
     "split1.txt"
   ],
-  "20520392": [
+  "20801711": [
     "split1.txt"
   ],
   "21512548": [
@@ -3069,11 +3065,11 @@
   "1177009870": [
     "split2.txt"
   ],
-  "1293479354": [
-    "split1.txt"
-  ],
   "1299481028": [
     "split2.txt"
+  ],
+  "1302506280": [
+    "split1.txt"
   ],
   "1473696419": [
     "split2.txt"
@@ -3449,10 +3445,6 @@
   "software": [
     "split1.txt"
   ],
-  "languages": [
-    "split1.txt",
-    "split2.txt"
-  ],
   "program": [
     "split1.txt"
   ],
@@ -3473,6 +3465,10 @@
   ],
   "level": [
     "split1.txt"
+  ],
+  "languages": [
+    "split1.txt",
+    "split2.txt"
   ],
   "high": [
     "split1.txt"
@@ -9534,29 +9530,6 @@
   "arranged": [
     "split1.txt"
   ],
-  "unprocessed": [
-    "split1.txt"
-  ],
-  "sent": [
-    "split1.txt"
-  ],
-  "processed": [
-    "split1.txt"
-  ],
-  "automated": [
-    "split1.txt"
-  ],
-  "act": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "mainly": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "regulated": [
-    "split1.txt"
-  ],
   "camera": [
     "split1.txt",
     "split2.txt"
@@ -9569,6 +9542,14 @@
   ],
   "touchscreen": [
     "split1.txt"
+  ],
+  "provides": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "accessible": [
+    "split1.txt",
+    "split2.txt"
   ],
   "speaker": [
     "split1.txt"
@@ -10389,19 +10370,18 @@
   "parallel": [
     "split1.txt"
   ],
-  "refers": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "protocols": [
+  "encoded": [
     "split1.txt"
   ],
-  "encoded": [
+  "determines": [
     "split1.txt"
   ],
   "contrast": [
     "split1.txt",
     "split2.txt"
+  ],
+  "immaterial": [
+    "split1.txt"
   ],
   "libraries": [
     "split1.txt"
@@ -10421,9 +10401,6 @@
     "split2.txt"
   ],
   "neither": [
-    "split1.txt"
-  ],
-  "realistically": [
     "split1.txt"
   ],
   "cannot": [
@@ -10819,73 +10796,6 @@
   "manager": [
     "split1.txt"
   ],
-  "intended": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "lists": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "category": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "generational": [
-    "split1.txt"
-  ],
-  "commonly": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "ada": [
-    "split1.txt"
-  ],
-  "cobol": [
-    "split1.txt"
-  ],
-  "fortran": [
-    "split1.txt"
-  ],
-  "pl": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "rexx": [
-    "split1.txt"
-  ],
-  "java": [
-    "split1.txt"
-  ],
-  "lisp": [
-    "split1.txt"
-  ],
-  "scripting": [
-    "split1.txt"
-  ],
-  "bourne": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "script": [
-    "split1.txt"
-  ],
-  "javascript": [
-    "split1.txt"
-  ],
-  "python": [
-    "split1.txt"
-  ],
-  "ruby": [
-    "split1.txt"
-  ],
-  "php": [
-    "split1.txt",
-    "split2.txt"
-  ],
-  "perl": [
-    "split1.txt"
-  ],
   "defining": [
     "split1.txt"
   ],
@@ -11135,6 +11045,10 @@
   "entire": [
     "split1.txt"
   ],
+  "lists": [
+    "split1.txt",
+    "split2.txt"
+  ],
   "themselves": [
     "split1.txt"
   ],
@@ -11213,6 +11127,9 @@
     "split1.txt",
     "split2.txt"
   ],
+  "fortran": [
+    "split1.txt"
+  ],
   "labeled": [
     "split1.txt"
   ],
@@ -11223,6 +11140,10 @@
     "split1.txt"
   ],
   "purposes": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "writing": [
     "split1.txt",
     "split2.txt"
   ],
@@ -11255,6 +11176,66 @@
     "split1.txt",
     "split2.txt"
   ],
+  "intended": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "category": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "generational": [
+    "split1.txt"
+  ],
+  "commonly": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "ada": [
+    "split1.txt"
+  ],
+  "cobol": [
+    "split1.txt"
+  ],
+  "pl": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "rexx": [
+    "split1.txt"
+  ],
+  "java": [
+    "split1.txt"
+  ],
+  "lisp": [
+    "split1.txt"
+  ],
+  "scripting": [
+    "split1.txt"
+  ],
+  "bourne": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "script": [
+    "split1.txt"
+  ],
+  "javascript": [
+    "split1.txt"
+  ],
+  "python": [
+    "split1.txt"
+  ],
+  "ruby": [
+    "split1.txt"
+  ],
+  "php": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "perl": [
+    "split1.txt"
+  ],
   "instance": [
     "split1.txt",
     "split2.txt"
@@ -11284,10 +11265,6 @@
   ],
   "notably": [
     "split1.txt"
-  ],
-  "writing": [
-    "split1.txt",
-    "split2.txt"
   ],
   "abstract": [
     "split1.txt",
@@ -11803,6 +11780,10 @@
     "split1.txt"
   ],
   "improved": [
+    "split1.txt",
+    "split2.txt"
+  ],
+  "mainly": [
     "split1.txt",
     "split2.txt"
   ],
@@ -12913,6 +12894,9 @@
     "split1.txt"
   ],
   "pr": [
+    "split1.txt"
+  ],
+  "sent": [
     "split1.txt"
   ],
   "par": [
@@ -15573,7 +15557,10 @@
   "republicspainlatviaisraelotherhistorical": [
     "split1.txt"
   ],
-  "switzerlandnara": [
+  "switzerlandnarayale": [
+    "split1.txt"
+  ],
+  "lux": [
     "split1.txt"
   ],
   "src": [
@@ -15668,7 +15655,7 @@
   "urlcs1": [
     "split1.txt"
   ],
-  "2024pages": [
+  "2025pages": [
     "split1.txt"
   ],
   "contentcs1": [
@@ -15750,6 +15737,9 @@
   "edited": [
     "split1.txt",
     "split2.txt"
+  ],
+  "09": [
+    "split1.txt"
   ],
   "utc": [
     "split1.txt",
@@ -15847,11 +15837,10 @@
     "split1.txt",
     "split2.txt"
   ],
-  "7b796b45fc": [
-    "split1.txt",
-    "split2.txt"
+  "7f88fddc7c": [
+    "split1.txt"
   ],
-  "8cmxn": [
+  "7w247": [
     "split1.txt"
   ],
   "wgbackendresponsetime": [
@@ -15926,6 +15915,12 @@
     "split1.txt",
     "split2.txt"
   ],
+  "03": [
+    "split1.txt"
+  ],
+  "035": [
+    "split1.txt"
+  ],
   "cite_book": [
     "split1.txt",
     "split2.txt"
@@ -15934,11 +15929,13 @@
     "split1.txt",
     "split2.txt"
   ],
-  "cite_journal": [
-    "split1.txt",
-    "split2.txt"
+  "05": [
+    "split1.txt"
   ],
-  "04": [
+  "082": [
+    "split1.txt"
+  ],
+  "cite_journal": [
     "split1.txt",
     "split2.txt"
   ],
@@ -15949,10 +15946,10 @@
     "split1.txt",
     "split2.txt"
   ],
-  "short_description": [
+  "basic_computer_components": [
     "split1.txt"
   ],
-  "basic_computer_components": [
+  "short_description": [
     "split1.txt"
   ],
   "scribunto": [
@@ -15962,6 +15959,9 @@
   "timeusage": [
     "split1.txt",
     "split2.txt"
+  ],
+  "078": [
+    "split1.txt"
   ],
   "memusage": [
     "split1.txt",
@@ -16369,14 +16369,20 @@
     "split1.txt",
     "split2.txt"
   ],
-  "lpcdm": [
+  "ext": [
+    "split1.txt"
+  ],
+  "6668777c54": [
+    "split1.txt"
+  ],
+  "ljcdd": [
     "split1.txt"
   ],
   "timestamp": [
     "split1.txt",
     "split2.txt"
   ],
-  "20250708174147": [
+  "20250725211013": [
     "split1.txt"
   ],
   "ttl": [
@@ -16461,9 +16467,6 @@
   "02t14": [
     "split1.txt"
   ],
-  "05": [
-    "split1.txt"
-  ],
   "53z": [
     "split1.txt"
   ],
@@ -16471,13 +16474,10 @@
     "split1.txt",
     "split2.txt"
   ],
-  "06": [
+  "25t21": [
     "split1.txt"
   ],
-  "01t23": [
-    "split1.txt"
-  ],
-  "00z": [
+  "41z": [
     "split1.txt"
   ],
   "0c": [
@@ -16743,6 +16743,9 @@
     "split2.txt"
   ],
   "onscience": [
+    "split2.txt"
+  ],
+  "behavioural": [
     "split2.txt"
   ],
   "communication": [
@@ -17607,9 +17610,6 @@
     "split2.txt"
   ],
   "efficient": [
-    "split2.txt"
-  ],
-  "accessible": [
     "split2.txt"
   ],
   "vienna": [
@@ -19529,6 +19529,9 @@
   "misconduct": [
     "split2.txt"
   ],
+  "refers": [
+    "split2.txt"
+  ],
   "intentionally": [
     "split2.txt"
   ],
@@ -19904,6 +19907,9 @@
   "sponsoring": [
     "split2.txt"
   ],
+  "act": [
+    "split2.txt"
+  ],
   "regulating": [
     "split2.txt"
   ],
@@ -20016,9 +20022,6 @@
     "split2.txt"
   ],
   "humanities": [
-    "split2.txt"
-  ],
-  "provides": [
     "split2.txt"
   ],
   "bulk": [
@@ -20859,6 +20862,9 @@
     "split2.txt"
   ],
   "etymological": [
+    "split2.txt"
+  ],
+  "04": [
     "split2.txt"
   ],
   "08927": [
@@ -24380,22 +24386,31 @@
   "excerptsarticles": [
     "split2.txt"
   ],
-  "bxhz8": [
+  "canary": [
     "split2.txt"
   ],
-  "018": [
+  "b8865d45b": [
+    "split2.txt"
+  ],
+  "jfxlg": [
     "split2.txt"
   ],
   "subject_bar": [
     "split2.txt"
   ],
+  "06": [
+    "split2.txt"
+  ],
   "rp": [
     "split2.txt"
   ],
-  "lpvvx": [
+  "68cf56ddc": [
     "split2.txt"
   ],
-  "20250708172447": [
+  "527vx": [
+    "split2.txt"
+  ],
+  "20250725102924": [
     "split2.txt"
   ],
   "q336": [

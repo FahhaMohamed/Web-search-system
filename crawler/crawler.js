@@ -8,10 +8,10 @@ const urls = [
   "https://en.wikipedia.org/wiki/Science",
 ];
 
-exports.crawler = async () => {
+const crawler = async () => {
   log("Crawler started.");
   try {
-    await fs.promises.mkdir("./dfs", { recursive: true });
+    await fs.promises.mkdir("../dfs", { recursive: true });
     for (let i = 0; i < urls.length; i++) {
       try {
         log(`Fetching ${urls[i]}...`);
@@ -19,7 +19,7 @@ exports.crawler = async () => {
         log(`Fetched ${urls[i]} with StatusCode: ${res.status}`);
         const $ = cheerio.load(res.data);
         const bodyContent = $("body").text();
-        const filePath = `./dfs/split${i+1}.txt`;
+        const filePath = `../dfs/split${i+1}.txt`;
         await fs.promises.writeFile(filePath, bodyContent);
         log(`Successfully wrote to ${filePath}`);
       } catch (err) {
@@ -31,3 +31,7 @@ exports.crawler = async () => {
     log(`Crawler encountered a fatal error: ${err.message}`);
   }
 };
+
+(async () => {
+  await crawler();
+})();

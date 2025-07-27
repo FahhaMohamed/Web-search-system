@@ -621,17 +621,6 @@ Personal tools
 			
 				
 					5.1
-					Languages
-				
-			
-			
-			
-			
-		
-		
-			
-				
-					5.2
 					Programs
 				
 			
@@ -640,7 +629,7 @@ Personal tools
 				
 			
 				
-					5.2.1
+					5.1.1
 					Stored program architecture
 				
 			
@@ -651,7 +640,7 @@ Personal tools
 		
 			
 				
-					5.2.2
+					5.1.2
 					Machine code
 				
 			
@@ -662,7 +651,7 @@ Personal tools
 		
 			
 				
-					5.2.3
+					5.1.3
 					Programming language
 				
 			
@@ -671,7 +660,7 @@ Personal tools
 				
 			
 				
-					5.2.3.1
+					5.1.3.1
 					Low-level languages
 				
 			
@@ -682,7 +671,7 @@ Personal tools
 		
 			
 				
-					5.2.3.2
+					5.1.3.2
 					High-level languages
 				
 			
@@ -695,7 +684,7 @@ Personal tools
 		
 			
 				
-					5.2.4
+					5.1.4
 					Program design
 				
 			
@@ -706,7 +695,7 @@ Personal tools
 		
 			
 				
-					5.2.5
+					5.1.5
 					Bugs
 				
 			
@@ -875,7 +864,7 @@ Toggle the table of contents
 			
 			
 				
-				AcèhAfrikaansAlemannischአማርኛअंगिकाÆngliscАԥсшәаالعربيةAragonésܐܪܡܝܐԱրեւմտահայերէնঅসমীয়াAsturianuअवधीAvañe'ẽAymar aruAzərbaycancaتۆرکجهবাংলা閩南語 / Bân-lâm-gúBasa BanyumasanБашҡортсаБеларускаяБеларуская (тарашкевіца)भोजपुरीBikol CentralBislamaБългарскиBoarischབོད་ཡིགBosanskiBrezhonegБуряадCatalàЧӑвашлаCebuanoČeštinaChiShonaChiTumbukaCymraegDanskالدارجةDeutschडोटेलीEestiΕλληνικάEmiliàn e rumagnòlЭрзяньEspañolEsperantoEstremeñuEuskaraفارسیFiji HindiFøroysktFrançaisFurlanGaeilgeGaelgGàidhligGalego贛語Gĩkũyũگیلکیગુજરાતી𐌲𐌿𐍄𐌹𐍃𐌺客家語 / Hak-kâ-ngî한국어HausaՀայերենहिन्दीHrvatskiIdoIgboIlokanoবিষ্ণুপ্রিয়া মণিপুরীBahasa IndonesiaInterlinguaInterlingueᐃᓄᒃᑎᑐᑦ / inuktitutIñupiatunИронIsiXhosaIsiZuluÍslenskaItalianoעבריתJawaKabɩyɛಕನ್ನಡKapampanganКъарачай-малкъарქართულიکٲشُرKaszëbscziҚазақшаKernowekKiswahiliКомиKongoKreyòl ayisyenKriyòl gwiyannenKurdîКыргызчаLadinoລາວLatinaLatviešuLëtzebuergeschЛезгиLietuviųLi NihaLigureLimburgsLingálaLingua Franca NovaLivvinkarjalaLa .lojban.LombardMagyarमैथिलीМакедонскиMalagasyമലയാളംMaltiमराठीმარგალურიمصرىဘာသာမန်مازِرونیBahasa MelayuMinangkabau閩東語 / Mìng-dĕ̤ng-ngṳ̄MirandésМонголမြန်မာဘာသာNa Vosa VakavitiNederlandsNedersaksiesनेपालीनेपाल भाषा日本語NapulitanoߒߞߏНохчийнNordfriiskNorsk bokmålNorsk nynorskOccitanОлык марийଓଡ଼ିଆOromooOʻzbekcha / ўзбекчаਪੰਜਾਬੀپنجابیပအိုဝ်ႏဘာႏသာႏپښتوPatoisភាសាខ្មែរPiemontèisPlattdüütschPolskiΠοντιακάPortuguêsQaraqalpaqshaQırımtatarcaRomânăRomani čhibRuna SimiРусиньскыйРусскийСаха тылаSakizayaGagana Samoaसंस्कृतम्ᱥᱟᱱᱛᱟᱲᱤسرائیکیSarduScotsSeelterskSesothoShqipSicilianuසිංහලSimple EnglishسنڌيSlovenčinaSlovenščinaСловѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟŚlůnskiSoomaaligaکوردیСрпски / srpskiSrpskohrvatski / српскохрватскиSundaSuomiSvenskaTagalogதமிழ்TaclḥitTaqbaylitТатарча / tatarçaTayalతెలుగుไทยThuɔŋjäŋТоҷикӣTsetsêhestâheseತುಳುTürkçeTürkmençeBasa UgiУкраїнськаاردوئۇيغۇرچە / UyghurcheVahcuenghVènetoVepsän kel’Tiếng ViệtVolapükVõroWalonWayuunaiki文言West-VlamsWinarayWolof吴语XitsongaייִדישYorùbá粵語ZazakiŽemaitėška中文OboloBetawiKadazandusunJaku IbanꠍꠤꠟꠐꠤTolışiⵜⴰⵎⴰⵣⵉⵖⵜ ⵜⴰⵏⴰⵡⴰⵢⵜ
+				AcèhAfrikaansAlemannischአማርኛअंगिकाÆngliscАԥсшәаالعربيةAragonésܐܪܡܝܐԱրեւմտահայերէնঅসমীয়াAsturianuअवधीAvañe'ẽAymar aruAzərbaycancaتۆرکجهবাংলা閩南語 / Bân-lâm-gíBasa BanyumasanБашҡортсаБеларускаяБеларуская (тарашкевіца)भोजपुरीBikol CentralBislamaБългарскиBoarischབོད་ཡིགBosanskiBrezhonegБуряадCatalàЧӑвашлаCebuanoČeštinaChiShonaChiTumbukaCymraegDanskالدارجةDeutschडोटेलीEestiΕλληνικάEmiliàn e rumagnòlЭрзяньEspañolEsperantoEstremeñuEuskaraفارسیFiji HindiFøroysktFrançaisFurlanGaeilgeGaelgGàidhligGalego贛語Gĩkũyũگیلکیગુજરાતી𐌲𐌿𐍄𐌹𐍃𐌺客家語 / Hak-kâ-ngî한국어HausaՀայերենहिन्दीHrvatskiIdoIgboIlokanoবিষ্ণুপ্রিয়া মণিপুরীBahasa IndonesiaInterlinguaInterlingueᐃᓄᒃᑎᑐᑦ / inuktitutIñupiatunИронIsiXhosaIsiZuluÍslenskaItalianoעבריתJawaKabɩyɛಕನ್ನಡKapampanganКъарачай-малкъарქართულიکٲشُرKaszëbscziҚазақшаKernowekKiswahiliКомиKongoKreyòl ayisyenKriyòl gwiyannenKurdîКыргызчаLadinoລາວLatinaLatviešuLëtzebuergeschЛезгиLietuviųLi NihaLigureLimburgsLingálaLingua Franca NovaLivvinkarjalaLa .lojban.LombardMagyarमैथिलीМакедонскиMalagasyമലയാളംMaltiमराठीმარგალურიمصرىဘာသာမန်مازِرونیBahasa MelayuMinangkabau閩東語 / Mìng-dĕ̤ng-ngṳ̄MirandésМонголမြန်မာဘာသာNa Vosa VakavitiNederlandsNedersaksiesनेपालीनेपाल भाषा日本語NapulitanoߒߞߏНохчийнNordfriiskNorsk bokmålNorsk nynorskOccitanОлык марийଓଡ଼ିଆOromooOʻzbekcha / ўзбекчаਪੰਜਾਬੀپنجابیပအိုဝ်ႏဘာႏသာႏپښتوPatoisភាសាខ្មែរPiemontèisPlattdüütschPolskiΠοντιακάPortuguêsQaraqalpaqshaQırımtatarcaRomânăRomani čhibRuna SimiРусиньскыйРусскийСаха тылаSakizayaGagana Samoaसंस्कृतम्ᱥᱟᱱᱛᱟᱲᱤسرائیکیSarduScotsSeelterskSesothoShqipSicilianuසිංහලSimple EnglishسنڌيSlovenčinaSlovenščinaСловѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟŚlůnskiSoomaaligaکوردیСрпски / srpskiSrpskohrvatski / српскохрватскиSundaSuomiSvenskaTagalogதமிழ்TaclḥitTaqbaylitТатарча / tatarçaTayalతెలుగుไทยThuɔŋjäŋТоҷикӣTsetsêhestâheseತುಳುTürkçeTürkmençeBasa UgiУкраїнськаاردوئۇيغۇرچە / UyghurcheVahcuenghVènetoVepsän kel’Tiếng ViệtVolapükVõroWalonWayuunaiki文言West-VlamsWinarayWolof吴语XitsongaייִדישYorùbá粵語ZazakiŽemaitėška中文OboloBetawiKadazandusunJaku IbanꠍꠤꠟꠐꠤTolışiⵜⴰⵎⴰⵣⵉⵖⵜ ⵜⴰⵏⴰⵡⴰⵢⵜ
 			
 			Edit links
 		
@@ -1402,7 +1391,7 @@ Ethernet, ATM, FDDI
 A general-purpose computer has four main components: the arithmetic logic unit (ALU), the control unit, the memory, and the input and output devices (collectively termed I/O). These parts are interconnected by buses, often made of groups of wires. Inside each of these parts are thousands to trillions of small electrical circuits which can be turned off or on by means of an electronic switch. Each circuit represents a bit (binary digit) of information so that when the circuit is on it represents a "1", and when off it represents a "0" (in positive logic representation). The circuits are arranged in logic gates so that one or more of the circuits may control the state of one or more of the other circuits.
 
 Input devices
-When unprocessed data is sent to the computer with the help of input devices, the data is processed and sent to output devices. The input devices may be hand-operated or automated. The act of processing is mainly regulated by the CPU. Some examples of input devices are:
+Input devices are the means by which the operations of a computer are controlled and it is provided with data. Examples include:
 
 Computer keyboard
 Digital camera
@@ -1417,7 +1406,7 @@ Trackball
 Touchscreen
 Light pen
 Output devices
-The means through which computer gives output are known as output devices. Some examples of output devices are:
+Output devices are the means by which a computer provides the results of its calculations in a human-accessible form. Examples include:
 
 Computer monitor
 Printer
@@ -1484,12 +1473,12 @@ Supercomputers in particular often have highly unique architectures that differ 
 
 Software
 Main article: Software
-Software refers to parts of the computer which do not have a material form, such as programs, data, protocols, etc. Software is that part of a computer system that consists of encoded information or computer instructions, in contrast to the physical hardware from which the system is built. Computer software includes computer programs, libraries and related non-executable data, such as online documentation or digital media. It is often divided into system software and application software. Computer hardware and software require each other and neither can be realistically used on its own. When software is stored in hardware that cannot easily be modified, such as with BIOS ROM in an IBM PC compatible computer, it is sometimes called "firmware".
+Software is the part of a computer system that consists of the encoded information that determines the computer's operation, such as data or instructions on how to process the data. In contrast to the physical hardware from which the system is built, software is immaterial. Software includes computer programs, libraries and related non-executable data, such as online documentation or digital media. It is often divided into system software and application software. Computer hardware and software require each other and neither is useful on its own. When software is stored in hardware that cannot easily be modified, such as with BIOS ROM in an IBM PC compatible computer, it is sometimes called "firmware".
 
 
 
 
-Operating system /System Software
+Operating system /system software
 
 Unix and BSD
 UNIX System V, IBM AIX, HP-UX, Solaris (SunOS), IRIX, List of BSD operating systems
@@ -1546,7 +1535,7 @@ Text-based user interface
 Command-line interface, Text user interface
 
 
-Application Software
+Application software
 
 Office suite
 Word processing, Desktop publishing, Presentation program, Database management system, Scheduling & Time management, Spreadsheet, Accounting software
@@ -1583,28 +1572,6 @@ Strategy, Arcade, Puzzle, Simulation, First-person shooter, Platform, Massively 
 Misc
 Artificial intelligence, Antivirus software, Malware scanner, Installer/Package management systems, File manager
 
-Languages
-There are thousands of different programming languages—some intended for general purpose, others useful for only highly specialized applications.
-
-
-Programming languages
-
-
-Lists of programming languages
-Timeline of programming languages, List of programming languages by category, Generational list of programming languages, List of programming languages, Non-English-based programming languages
-
-
-Commonly used assembly languages
-ARM, MIPS, x86
-
-
-Commonly used high-level programming languages
-Ada, BASIC, C, C++, C#, COBOL, Fortran, PL/I, REXX, Java, Lisp, Pascal, Object Pascal
-
-
-Commonly used scripting languages
-Bourne script, JavaScript, Python, Ruby, PHP, Perl
-
 Programs
 The defining feature of modern computers which distinguishes them from all other machines is that they can be programmed. That is to say that some type of instructions (the program) can be given to the computer, and it will process them. Modern computers based on the von Neumann architecture often have machine code in the form of an imperative programming language. In practical terms, a computer program may be just a few instructions or extend to many millions of instructions, as do the programs for word processors and web browsers for example. A typical modern computer can execute billions of instructions per second (gigaflops) and rarely makes a mistake over many years of operation. Large computer programs consisting of several million instructions may take teams of programmers years to write, and due to the complexity of the task almost certainly contain errors.
 
@@ -1638,7 +1605,27 @@ While it is possible to write computer programs as long lists of numbers (machin
 A 1970s punched card containing one line from a Fortran program. The card reads: "Z(1) = Y + W(1)" and is labeled "PROJ039" for identification purposes.
 Programming language
 Main article: Programming language
-Programming languages provide various ways of specifying programs for computers to run. Unlike natural languages, programming languages are designed to permit no ambiguity and to be concise. They are purely written languages and are often difficult to read aloud. They are generally either translated into machine code by a compiler or an assembler before being run, or translated directly at run time by an interpreter. Sometimes programs are executed by a hybrid method of the two techniques.
+A programming language is a notation system for writing the source code from which a computer program is produced. Programming languages provide various ways of specifying programs for computers to run. Unlike natural languages, programming languages are designed to permit no ambiguity and to be concise. They are purely written languages and are often difficult to read aloud. They are generally either translated into machine code by a compiler or an assembler before being run, or translated directly at run time by an interpreter. Sometimes programs are executed by a hybrid method of the two techniques.
+There are thousands of programming languages—some intended for general purpose programming, others useful for only highly specialized applications.
+
+
+Programming languages
+
+
+Lists of programming languages
+Timeline of programming languages, List of programming languages by category, Generational list of programming languages, List of programming languages, Non-English-based programming languages
+
+
+Commonly used assembly languages
+ARM, MIPS, x86
+
+
+Commonly used high-level programming languages
+Ada, BASIC, C, C++, C#, COBOL, Fortran, PL/I, REXX, Java, Lisp, Pascal, Object Pascal
+
+
+Commonly used scripting languages
+Bourne script, JavaScript, Python, Ruby, PHP, Perl
 
 Low-level languages
 Main article: Low-level programming language
@@ -1908,7 +1895,7 @@ References
 
 ^ Lavington 1998, pp. 34–35.
 
-^ a b Cooke-Yarborough, E. H. (June 1998). "Some early transistor applications in the UK". Engineering Science & Education Journal. 7 (3): 100–106. doi:10.1049/esej:19980301 (inactive 7 December 2024). ISSN 0963-7346. Archived from the original on 8 November 2020. Retrieved 7 June 2009.{{cite journal}}:  CS1 maint: DOI inactive as of December 2024 (link) (subscription required).
+^ a b Cooke-Yarborough, E. H. (June 1998). "Some early transistor applications in the UK". Engineering Science & Education Journal. 7 (3): 100–106. doi:10.1049/esej:19980301 (inactive 11 July 2025). ISSN 0963-7346. Archived from the original on 8 November 2020. Retrieved 7 June 2009.{{cite journal}}:  CS1 maint: DOI inactive as of July 2025 (link) (subscription required).
 
 ^ Cooke-Yarborough, E. H. (1957). Introduction to Transistor Circuits. Edinburgh, Scotland: Oliver and Boyd. p. 139.
 
@@ -2417,14 +2404,14 @@ Radio electronics
 Terahertz technology
 Wired and Wireless Communications
 
-.mw-parser-output .tooltip-dotted{border-bottom:1px dotted;cursor:help}Authority control databases InternationalFASTNationalGermanyUnited StatesFranceBnF dataJapanCzech RepublicSpainLatviaIsraelOtherHistorical Dictionary of SwitzerlandNARA
+.mw-parser-output .tooltip-dotted{border-bottom:1px dotted;cursor:help}Authority control databases InternationalFASTNationalGermanyUnited StatesFranceBnF dataJapanCzech RepublicSpainLatviaIsraelOtherHistorical Dictionary of SwitzerlandNARAYale LUX
 
 
 
 
 <img src="https://en.wikipedia.org/wiki/Special:CentralAutoLogin/start?type=1x1&amp;usesul3=1" alt="" width="1" height="1" style="border: none; position: absolute;">
-Retrieved from "https://en.wikipedia.org/w/index.php?title=Computer&oldid=1293479354"
-					Categories: ComputersConsumer electronicsElectronics industryHidden categories: Webarchive template wayback linksCS1 Spanish-language sources (es)CS1 French-language sources (fr)All articles with specifically marked weasel-worded phrasesArticles with specifically marked weasel-worded phrases from February 2023CS1 German-language sources (de)CS1: unfit URLCS1 maint: DOI inactive as of December 2024Pages containing links to subscription-only contentCS1 errors: ISBN dateWikipedia articles needing page number citations from March 2022Articles with short descriptionShort description is different from WikidataWikipedia indefinitely semi-protected pagesWikipedia indefinitely move-protected pagesPages using multiple image with auto scaled imagesArticles containing Chinese-language textAll articles with unsourced statementsArticles with unsourced statements from February 2025Articles with unsourced statements from December 2007Commons category link is on WikidataUse dmy dates from July 2017Articles containing video clipsArticles with example code
+Retrieved from "https://en.wikipedia.org/w/index.php?title=Computer&oldid=1302506280"
+					Categories: ComputersConsumer electronicsElectronics industryHidden categories: Webarchive template wayback linksCS1 Spanish-language sources (es)CS1 French-language sources (fr)All articles with specifically marked weasel-worded phrasesArticles with specifically marked weasel-worded phrases from February 2023CS1 German-language sources (de)CS1: unfit URLCS1 maint: DOI inactive as of July 2025Pages containing links to subscription-only contentCS1 errors: ISBN dateWikipedia articles needing page number citations from March 2022Articles with short descriptionShort description is different from WikidataWikipedia indefinitely semi-protected pagesWikipedia indefinitely move-protected pagesPages using multiple image with auto scaled imagesArticles containing Chinese-language textAll articles with unsourced statementsArticles with unsourced statements from February 2025Articles with unsourced statements from December 2007Commons category link is on WikidataUse dmy dates from July 2017Articles containing video clipsArticles with example code
 				
 			
 			
@@ -2433,7 +2420,7 @@ Retrieved from "https://en.wikipedia.org/w/index.php?title=Computer&oldid=129347
 			
 
 	
-	 This page was last edited on 1 June 2025, at 23:29 (UTC).
+	 This page was last edited on 25 July 2025, at 21:09 (UTC).
 	Text is available under the Creative Commons Attribution-ShareAlike 4.0 License;
 additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
 
@@ -2559,6 +2546,6 @@ Add topic
 		
 	
 
-(RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgHostname":"mw-web.codfw.main-7b796b45fc-8cmxn","wgBackendResponseTime":321,"wgPageParseReport":{"limitreport":{"cputime":"1.849","walltime":"2.189","ppvisitednodes":{"value":14603,"limit":1000000},"revisionsize":{"value":143800,"limit":2097152},"postexpandincludesize":{"value":413182,"limit":2097152},"templateargumentsize":{"value":12910,"limit":2097152},"expansiondepth":{"value":23,"limit":100},"expensivefunctioncount":{"value":57,"limit":500},"unstrip-depth":{"value":1,"limit":20},"unstrip-size":{"value":578638,"limit":5000000},"entityaccesscount":{"value":1,"limit":500},"timingprofile":["100.00% 1743.133      1 -total"," 49.01%  854.323      2 Template:Reflist"," 17.46%  304.329     58 Template:Cite_book"," 15.68%  273.273     45 Template:Cite_web"," 10.45%  182.107     28 Template:Cite_journal","  6.78%  118.212     10 Template:Navbox","  6.04%  105.271      9 Template:Sfn","  5.16%   89.903      1 Template:Lang","  5.01%   87.374      1 Template:Short_description","  3.71%   64.739      1 Template:Basic_computer_components"]},"scribunto":{"limitreport-timeusage":{"value":"1.143","limit":"10.000"},"limitreport-memusage":{"value":20520392,"limit":52428800},"limitreport-logs":"anchor_id_list = table#1 {\n    [\"AIKEN\"] = 1,\n    [\"BERK\"] = 1,\n    [\"BOWDEN\"] = 1,\n    [\"CITEREFArthur_W._Burks1989\"] = 1,\n    [\"CITEREFBarnaPorat1976\"] = 1,\n    [\"CITEREFBearne2018\"] = 1,\n    [\"CITEREFBediniMaddison1966\"] = 1,\n    [\"CITEREFBellis2019\"] = 1,\n    [\"CITEREFBromley1990\"] = 1,\n    [\"CITEREFBrooks_(Jr.)1975\"] = 1,\n    [\"CITEREFBruderer2021\"] = 1,\n    [\"CITEREFCharette2006\"] = 1,\n    [\"CITEREFChartier2008\"] = 1,\n    [\"CITEREFClaeys2003\"] = 1,\n    [\"CITEREFColingeGreer2016\"] = 1,\n    [\"CITEREFCooke-Yarborough1957\"] = 1,\n    [\"CITEREFCooke-Yarborough1998\"] = 1,\n    [\"CITEREFCopeland2004\"] = 1,\n    [\"CITEREFCopeland2006\"] = 1,\n    [\"CITEREFCragon2000\"] = 1,\n    [\"CITEREFDavis2002\"] = 1,\n    [\"CITEREFDumas_II2005\"] = 1,\n    [\"CITEREFEadie1968\"] = 1,\n    [\"CITEREFEck2000\"] = 1,\n    [\"CITEREFEdwards2025\"] = 1,\n    [\"CITEREFEnticknap1998\"] = 1,\n    [\"CITEREFEvans2018\"] = 1,\n    [\"CITEREFFensom2010\"] = 1,\n    [\"CITEREFFlegg,_Graham.1989\"] = 1,\n    [\"CITEREFFossumTrivedi2013\"] = 1,\n    [\"CITEREFFroschDerick1957\"] = 2,\n    [\"CITEREFGomez-JaureguiGutierrez-GarciaGonzález-RedondoIglesias2022\"] = 1,\n    [\"CITEREFGraham-Cumming2010\"] = 1,\n    [\"CITEREFHalacy,_Daniel_Stephen1970\"] = 1,\n    [\"CITEREFHittinger1973\"] = 1,\n    [\"CITEREFHuffRiordan2007\"] = 1,\n    [\"CITEREFHughes2000\"] = 1,\n    [\"CITEREFIDC2013\"] = 1,\n    [\"CITEREFJindal2024\"] = 1,\n    [\"CITEREFKahng1961\"] = 1,\n    [\"CITEREFKilby2000\"] = 1,\n    [\"CITEREFKnight2012\"] = 1,\n    [\"CITEREFKontoghiorghes2006\"] = 1,\n    [\"CITEREFKuo2013\"] = 1,\n    [\"CITEREFLavington\"] = 1,\n    [\"CITEREFLavington1998\"] = 1,\n    [\"CITEREFLaws2013\"] = 1,\n    [\"CITEREFLeach2016\"] = 2,\n    [\"CITEREFLee2003\"] = 1,\n    [\"CITEREFLeinerCerfClarkKahn1999\"] = 1,\n    [\"CITEREFLigenzaSpitzer1960\"] = 1,\n    [\"CITEREFLight1999\"] = 1,\n    [\"CITEREFLincolnFrosch1957\"] = 1,\n    [\"CITEREFLojek2007\"] = 3,\n    [\"CITEREFLécuyerBrookLast2010\"] = 1,\n    [\"CITEREFMalmstadtEnkeCrouch1994\"] = 1,\n    [\"CITEREFMarchant2006\"] = 1,\n    [\"CITEREFMarriott2019\"] = 1,\n    [\"CITEREFMiller2014\"] = 1,\n    [\"CITEREFMoskowitz2016\"] = 2,\n    [\"CITEREFMotoyoshi2009\"] = 1,\n    [\"CITEREFNapper\"] = 1,\n    [\"CITEREFO\u0026#039;ConnorRobertson1998\"] = 1,\n    [\"CITEREFO\u0026#039;Regan2010\"] = 1,\n    [\"CITEREFO’Regan2008\"] = 1,\n    [\"CITEREFParmar2021\"] = 1,\n    [\"CITEREFPattersonHennessy1998\"] = 1,\n    [\"CITEREFPeekTodinoStrang2002\"] = 1,\n    [\"CITEREFPrice1984\"] = 1,\n    [\"CITEREFPuersBaldiVoordeNooten2017\"] = 1,\n    [\"CITEREFRandell1982\"] = 1,\n    [\"CITEREFRandellFensomMilne1995\"] = 1,\n    [\"CITEREFRobson2008\"] = 1,\n    [\"CITEREFRojas\"] = 1,\n    [\"CITEREFRojas1998\"] = 1,\n    [\"CITEREFSalz_Trautman1994\"] = 1,\n    [\"CITEREFSaxena2009\"] = 1,\n    [\"CITEREFSchmandt-Besserat1981\"] = 1,\n    [\"CITEREFSchmandt-Besserat1999\"] = 1,\n    [\"CITEREFSmith2013\"] = 1,\n    [\"CITEREFSommerville2007\"] = 1,\n    [\"CITEREFTOP5002006\"] = 1,\n    [\"CITEREFTaylor1984\"] = 1,\n    [\"CITEREFThomas2008\"] = 1,\n    [\"CITEREFTorres1895\"] = 1,\n    [\"CITEREFTorres_Quevedo1901\"] = 1,\n    [\"CITEREFTse2020\"] = 1,\n    [\"CITEREFTuring1937\"] = 1,\n    [\"CITEREFVermaMielke1988\"] = 1,\n    [\"CITEREFWinston1998\"] = 1,\n    [\"CITEREFXuZhang2021\"] = 1,\n    [\"CITEREFYoung2018\"] = 1,\n    [\"CITEREFZhu2005\"] = 1,\n    [\"CITEREFZuse\"] = 1,\n    [\"CITEREFZuse1993\"] = 1,\n    [\"CITEREFZuse2010\"] = 1,\n    [\"CITEREFŐren2001\"] = 1,\n    [\"COLLIER\"] = 1,\n    [\"COUFFIGNAL\"] = 1,\n    [\"DEC\"] = 1,\n    [\"Digital\"] = 1,\n    [\"Digital_computer\"] = 1,\n    [\"FELT\"] = 1,\n    [\"GENIUS\"] = 1,\n    [\"IFRAH\"] = 1,\n    [\"JACWEB\"] = 1,\n    [\"LIGO\"] = 1,\n    [\"SWADE\"] = 1,\n    [\"ZUSE\"] = 1,\n}\ntemplate_list = table#1 {\n    [\"!\"] = 2,\n    [\"\\\" '\"] = 1,\n    [\"Anchor\"] = 1,\n    [\"Authority control\"] = 1,\n    [\"Basic computer components\"] = 1,\n    [\"Bulleted list\"] = 1,\n    [\"Circa\"] = 2,\n    [\"Citation needed\"] = 2,\n    [\"Cite AV media\"] = 1,\n    [\"Cite arXiv\"] = 1,\n    [\"Cite book\"] = 58,\n    [\"Cite conference\"] = 1,\n    [\"Cite journal\"] = 28,\n    [\"Cite magazine\"] = 1,\n    [\"Cite news\"] = 10,\n    [\"Cite patent\"] = 1,\n    [\"Cite web\"] = 45,\n    [\"Clear\"] = 2,\n    [\"Commons category-inline\"] = 1,\n    [\"Convert\"] = 1,\n    [\"Digital systems\"] = 1,\n    [\"Div col\"] = 1,\n    [\"Div col end\"] = 1,\n    [\"Efn\"] = 12,\n    [\"Electronic systems\"] = 1,\n    [\"For timeline\"] = 1,\n    [\"Further\"] = 2,\n    [\"GBurl\"] = 18,\n    [\"Harvid\"] = 1,\n    [\"Harvnb\"] = 2,\n    [\"ISBN\"] = 2,\n    [\"Lang\"] = 1,\n    [\"Main\"] = 22,\n    [\"Mainframes\"] = 1,\n    [\"Multiple image\"] = 2,\n    [\"Notelist\"] = 1,\n    [\"Other uses\"] = 1,\n    [\"Page needed\"] = 1,\n    [\"Pp-move\"] = 1,\n    [\"Pp-semi-indef\"] = 1,\n    [\"Ref patent\"] = 1,\n    [\"Refbegin\"] = 1,\n    [\"Refend\"] = 1,\n    [\"Reflist\"] = 1,\n    [\"See also\"] = 3,\n    [\"Sfn\"] = 9,\n    [\"Short description\"] = 1,\n    [\"Sic\"] = 2,\n    [\"Sister-inline\"] = 1,\n    [\"Subscription required\"] = 1,\n    [\"TOC limit\"] = 1,\n    [\"Use dmy dates\"] = 1,\n    [\"Webarchive\"] = 4,\n    [\"Who\"] = 1,\n}\narticle_whitelist = table#1 {\n}\nciteref_patterns = table#1 {\n}\n"},"cachereport":{"origin":"mw-web.codfw.main-7b796b45fc-lpcdm","timestamp":"20250708174147","ttl":2592000,"transientcontent":false}}});});
-{"@context":"https:\/\/schema.org","@type":"Article","name":"Computer","url":"https:\/\/en.wikipedia.org\/wiki\/Computer","sameAs":"http:\/\/www.wikidata.org\/entity\/Q68","mainEntity":"http:\/\/www.wikidata.org\/entity\/Q68","author":{"@type":"Organization","name":"Contributors to Wikimedia projects"},"publisher":{"@type":"Organization","name":"Wikimedia Foundation, Inc.","logo":{"@type":"ImageObject","url":"https:\/\/www.wikimedia.org\/static\/images\/wmf-hor-googpub.png"}},"datePublished":"2001-11-02T14:05:53Z","dateModified":"2025-06-01T23:29:00Z","image":"https:\/\/upload.wikimedia.org\/wikipedia\/commons\/0\/0c\/ENIAC-changing_a_tube_%28cropped%29.jpg","headline":"general-purpose device for performing arithmetic or logical operations"}
+(RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgHostname":"mw-web.codfw.main-7f88fddc7c-7w247","wgBackendResponseTime":332,"wgPageParseReport":{"limitreport":{"cputime":"1.736","walltime":"1.969","ppvisitednodes":{"value":14610,"limit":1000000},"revisionsize":{"value":143853,"limit":2097152},"postexpandincludesize":{"value":413404,"limit":2097152},"templateargumentsize":{"value":12910,"limit":2097152},"expansiondepth":{"value":23,"limit":100},"expensivefunctioncount":{"value":45,"limit":500},"unstrip-depth":{"value":1,"limit":20},"unstrip-size":{"value":578630,"limit":5000000},"entityaccesscount":{"value":1,"limit":500},"timingprofile":["100.00% 1593.394      1 -total"," 51.03%  813.035      2 Template:Reflist"," 18.86%  300.533     58 Template:Cite_book"," 16.98%  270.566     44 Template:Cite_web"," 10.05%  160.082     28 Template:Cite_journal","  8.80%  140.223     10 Template:Navbox","  6.45%  102.767      9 Template:Sfn","  5.75%   91.557      1 Template:Lang","  3.98%   63.374      1 Template:Basic_computer_components","  3.40%   54.225      1 Template:Short_description"]},"scribunto":{"limitreport-timeusage":{"value":"1.078","limit":"10.000"},"limitreport-memusage":{"value":20801711,"limit":52428800},"limitreport-logs":"anchor_id_list = table#1 {\n    [\"AIKEN\"] = 1,\n    [\"BERK\"] = 1,\n    [\"BOWDEN\"] = 1,\n    [\"CITEREFArthur_W._Burks1989\"] = 1,\n    [\"CITEREFBarnaPorat1976\"] = 1,\n    [\"CITEREFBearne2018\"] = 1,\n    [\"CITEREFBediniMaddison1966\"] = 1,\n    [\"CITEREFBellis2019\"] = 1,\n    [\"CITEREFBromley1990\"] = 1,\n    [\"CITEREFBrooks_(Jr.)1975\"] = 1,\n    [\"CITEREFBruderer2021\"] = 1,\n    [\"CITEREFCharette2006\"] = 1,\n    [\"CITEREFChartier2008\"] = 1,\n    [\"CITEREFClaeys2003\"] = 1,\n    [\"CITEREFColingeGreer2016\"] = 1,\n    [\"CITEREFCooke-Yarborough1957\"] = 1,\n    [\"CITEREFCooke-Yarborough1998\"] = 1,\n    [\"CITEREFCopeland2004\"] = 1,\n    [\"CITEREFCopeland2006\"] = 1,\n    [\"CITEREFCragon2000\"] = 1,\n    [\"CITEREFDavis2002\"] = 1,\n    [\"CITEREFDumas_II2005\"] = 1,\n    [\"CITEREFEadie1968\"] = 1,\n    [\"CITEREFEck2000\"] = 1,\n    [\"CITEREFEdwards2025\"] = 1,\n    [\"CITEREFEnticknap1998\"] = 1,\n    [\"CITEREFEvans2018\"] = 1,\n    [\"CITEREFFensom2010\"] = 1,\n    [\"CITEREFFlegg,_Graham.1989\"] = 1,\n    [\"CITEREFFossumTrivedi2013\"] = 1,\n    [\"CITEREFFroschDerick1957\"] = 2,\n    [\"CITEREFGomez-JaureguiGutierrez-GarciaGonzález-RedondoIglesias2022\"] = 1,\n    [\"CITEREFGraham-Cumming2010\"] = 1,\n    [\"CITEREFHalacy,_Daniel_Stephen1970\"] = 1,\n    [\"CITEREFHittinger1973\"] = 1,\n    [\"CITEREFHuffRiordan2007\"] = 1,\n    [\"CITEREFHughes2000\"] = 1,\n    [\"CITEREFIDC2013\"] = 1,\n    [\"CITEREFJindal2024\"] = 1,\n    [\"CITEREFKahng1961\"] = 1,\n    [\"CITEREFKilby2000\"] = 1,\n    [\"CITEREFKnight2012\"] = 1,\n    [\"CITEREFKontoghiorghes2006\"] = 1,\n    [\"CITEREFKuo2013\"] = 1,\n    [\"CITEREFLavington\"] = 1,\n    [\"CITEREFLavington1998\"] = 1,\n    [\"CITEREFLaws2013\"] = 1,\n    [\"CITEREFLeach2016\"] = 2,\n    [\"CITEREFLee2003\"] = 1,\n    [\"CITEREFLeinerCerfClarkKahn1999\"] = 1,\n    [\"CITEREFLigenzaSpitzer1960\"] = 1,\n    [\"CITEREFLight1999\"] = 1,\n    [\"CITEREFLincolnFrosch1957\"] = 1,\n    [\"CITEREFLojek2007\"] = 3,\n    [\"CITEREFLécuyerBrookLast2010\"] = 1,\n    [\"CITEREFMalmstadtEnkeCrouch1994\"] = 1,\n    [\"CITEREFMarchant2006\"] = 1,\n    [\"CITEREFMarriott2019\"] = 1,\n    [\"CITEREFMiller2014\"] = 1,\n    [\"CITEREFMoskowitz2016\"] = 2,\n    [\"CITEREFMotoyoshi2009\"] = 1,\n    [\"CITEREFNapper\"] = 1,\n    [\"CITEREFO\u0026#039;ConnorRobertson1998\"] = 1,\n    [\"CITEREFO\u0026#039;Regan2010\"] = 1,\n    [\"CITEREFO’Regan2008\"] = 1,\n    [\"CITEREFParmar2021\"] = 1,\n    [\"CITEREFPattersonHennessy1998\"] = 1,\n    [\"CITEREFPeekTodinoStrang2002\"] = 1,\n    [\"CITEREFPrice1984\"] = 1,\n    [\"CITEREFPuersBaldiVoordeNooten2017\"] = 1,\n    [\"CITEREFRandell1982\"] = 1,\n    [\"CITEREFRandellFensomMilne1995\"] = 1,\n    [\"CITEREFRobson2008\"] = 1,\n    [\"CITEREFRojas\"] = 1,\n    [\"CITEREFRojas1998\"] = 1,\n    [\"CITEREFSalz_Trautman1994\"] = 1,\n    [\"CITEREFSaxena2009\"] = 1,\n    [\"CITEREFSchmandt-Besserat1981\"] = 1,\n    [\"CITEREFSchmandt-Besserat1999\"] = 1,\n    [\"CITEREFSmith2013\"] = 1,\n    [\"CITEREFSommerville2007\"] = 1,\n    [\"CITEREFTOP5002006\"] = 1,\n    [\"CITEREFTaylor1984\"] = 1,\n    [\"CITEREFThomas2008\"] = 1,\n    [\"CITEREFTorres1895\"] = 1,\n    [\"CITEREFTorres_Quevedo1901\"] = 1,\n    [\"CITEREFTse2020\"] = 1,\n    [\"CITEREFTuring1937\"] = 1,\n    [\"CITEREFVermaMielke1988\"] = 1,\n    [\"CITEREFWinston1998\"] = 1,\n    [\"CITEREFXuZhang2021\"] = 1,\n    [\"CITEREFYoung2018\"] = 1,\n    [\"CITEREFZhu2005\"] = 1,\n    [\"CITEREFZuse\"] = 1,\n    [\"CITEREFZuse1993\"] = 1,\n    [\"CITEREFZuse2010\"] = 1,\n    [\"CITEREFŐren2001\"] = 1,\n    [\"COLLIER\"] = 1,\n    [\"COUFFIGNAL\"] = 1,\n    [\"DEC\"] = 1,\n    [\"Digital\"] = 1,\n    [\"Digital_computer\"] = 1,\n    [\"FELT\"] = 1,\n    [\"GENIUS\"] = 1,\n    [\"IFRAH\"] = 1,\n    [\"JACWEB\"] = 1,\n    [\"LIGO\"] = 1,\n    [\"SWADE\"] = 1,\n    [\"ZUSE\"] = 1,\n}\ntemplate_list = table#1 {\n    [\"!\"] = 2,\n    [\"\\\" '\"] = 1,\n    [\"Anchor\"] = 1,\n    [\"Authority control\"] = 1,\n    [\"Basic computer components\"] = 1,\n    [\"Bulleted list\"] = 1,\n    [\"Circa\"] = 2,\n    [\"Citation needed\"] = 2,\n    [\"Cite AV media\"] = 1,\n    [\"Cite arXiv\"] = 1,\n    [\"Cite book\"] = 58,\n    [\"Cite conference\"] = 1,\n    [\"Cite journal\"] = 28,\n    [\"Cite magazine\"] = 2,\n    [\"Cite news\"] = 10,\n    [\"Cite patent\"] = 1,\n    [\"Cite web\"] = 44,\n    [\"Clear\"] = 2,\n    [\"Commons category-inline\"] = 1,\n    [\"Convert\"] = 1,\n    [\"Digital systems\"] = 1,\n    [\"Div col\"] = 1,\n    [\"Div col end\"] = 1,\n    [\"Efn\"] = 12,\n    [\"Electronic systems\"] = 1,\n    [\"For timeline\"] = 1,\n    [\"Further\"] = 2,\n    [\"GBurl\"] = 18,\n    [\"Harvid\"] = 1,\n    [\"Harvnb\"] = 2,\n    [\"ISBN\"] = 2,\n    [\"Lang\"] = 1,\n    [\"Main\"] = 22,\n    [\"Mainframes\"] = 1,\n    [\"Multiple image\"] = 2,\n    [\"Notelist\"] = 1,\n    [\"Other uses\"] = 1,\n    [\"Page needed\"] = 1,\n    [\"Pp-move\"] = 1,\n    [\"Pp-semi-indef\"] = 1,\n    [\"Ref patent\"] = 1,\n    [\"Refbegin\"] = 1,\n    [\"Refend\"] = 1,\n    [\"Reflist\"] = 1,\n    [\"See also\"] = 3,\n    [\"Sfn\"] = 9,\n    [\"Short description\"] = 1,\n    [\"Sic\"] = 2,\n    [\"Sister-inline\"] = 1,\n    [\"Subscription required\"] = 1,\n    [\"TOC limit\"] = 1,\n    [\"Use dmy dates\"] = 1,\n    [\"Webarchive\"] = 4,\n    [\"Who\"] = 1,\n}\narticle_whitelist = table#1 {\n}\nciteref_patterns = table#1 {\n}\n"},"cachereport":{"origin":"mw-api-ext.codfw.main-6668777c54-ljcdd","timestamp":"20250725211013","ttl":2592000,"transientcontent":false}}});});
+{"@context":"https:\/\/schema.org","@type":"Article","name":"Computer","url":"https:\/\/en.wikipedia.org\/wiki\/Computer","sameAs":"http:\/\/www.wikidata.org\/entity\/Q68","mainEntity":"http:\/\/www.wikidata.org\/entity\/Q68","author":{"@type":"Organization","name":"Contributors to Wikimedia projects"},"publisher":{"@type":"Organization","name":"Wikimedia Foundation, Inc.","logo":{"@type":"ImageObject","url":"https:\/\/www.wikimedia.org\/static\/images\/wmf-hor-googpub.png"}},"datePublished":"2001-11-02T14:05:53Z","dateModified":"2025-07-25T21:09:41Z","image":"https:\/\/upload.wikimedia.org\/wikipedia\/commons\/0\/0c\/ENIAC-changing_a_tube_%28cropped%29.jpg","headline":"general-purpose device for performing arithmetic or logical operations"}
 

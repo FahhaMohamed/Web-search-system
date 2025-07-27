@@ -1,4 +1,6 @@
 FROM node:18
 WORKDIR /app
 COPY reduceNode.js .
+COPY wait-for-file.sh .
+RUN chmod +x wait-for-file.sh
 CMD ["node", "reduceNode.js"]
