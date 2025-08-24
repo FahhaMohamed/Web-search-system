@@ -7,7 +7,7 @@ const urls = [
   "https://en.wikipedia.org/wiki/Computer",
   "https://en.wikipedia.org/wiki/Science",
   "https://en.wikipedia.org/wiki/Phone",
-  "https://en.wikipedia.org/wiki/Book",
+  // "https://en.wikipedia.org/wiki/Book",
 ];
 
 const nameNodeUrl = "http://namenode:4000";
