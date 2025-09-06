@@ -1,5 +1,0 @@
-FROM node:20
-WORKDIR /app
-COPY crawler.js .
-RUN npm install axios cheerio
-CMD ["node", "crawler.js"]

@@ -1,81 +1,100 @@
 version: '3.8'
 
-networks:
-  my-network:
 services:
-  cleaner:
-    build: .
-    volumes:
-      - ./dfs:/dfs
-    entrypoint: ["node", "server.js"] 
-
-  namenode:
-    build: ./name-node
-    depends_on:
-      - cleaner
-    ports:
-      - "4000:4000"
-    networks:
-      - my-network
-    volumes:
-      - ./dfs:/dfs
-    command: node nameNode.js
-  crawler:
-    build: ./crawler
-    depends_on:
-      - namenode
-    networks:
-      - my-network
-    volumes:
-      - ./dfs:/dfs
-    command: node crawler.js
-
-  map:
-    build: ./map-node
-    depends_on:
-      - crawler
-    networks:
-      - my-network
-    volumes:
-      - ./dfs:/dfs
-    command: sh -c "
-      echo 'Waiting for split files...';
-      while [ ! -f /dfs/split1.txt ] || [ ! -s /dfs/split1.txt ] ||
-          [ ! -f /dfs/split2.txt ] || [ ! -s /dfs/split2.txt ]; do
-      sleep 2;
-      echo 'Still waiting for split files...';
-      done;
-      echo 'Split files found, starting processing...';
-      node mapNode.js"
-
-  reduce:
-    build: ./reduce-node
-    depends_on:
-      - map
-    volumes:
-      - ./dfs:/dfs
-    command: sh -c "
-      echo 'Waiting for map outputs...';
-      while [ ! -f /dfs/map-split1.txt ] || [ ! -f /dfs/map-split2.txt ]; do
-        sleep 2;
-        echo 'Waiting for map-split1.txt and map-split2.txt...';
-      done;
-      echo 'Map outputs found, starting reduce...';
-      node reduceNode.js"
-
-  search:
-    build: ./search-api
-    depends_on:
-      - reduce
+  gateway:
+    build: ./gateway
     ports:
       - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - search-node-1
+      - search-node-2
+      - search-node-3
+      - index-node-1
+      - index-node-2
+    networks:
+      - search-network
     volumes:
-      - ./dfs:/dfs
-    command: sh -c "
-      echo 'Waiting for index.json...';
-      while [ ! -f /dfs/index.json ]; do
-        sleep 2;
-        echo 'Still waiting for index.json...';
-      done;
-      echo 'Index found, starting search API...';
-      node searchApi.js"
+      - ./data:/data
+
+  search-node-1:
+    build: ./search-node
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ID=node1
+      - NODE_SPECIALTY=text
+      - PORT=3001
+    networks:
+      - search-network
+    volumes:
+      - ./data:/data
+
+  search-node-2:
+    build: ./search-node
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ID=node2
+      - NODE_SPECIALTY=metadata
+      - PORT=3002
+    networks:
+      - search-network
+    volumes:
+      - ./data:/data
+
+  search-node-3:
+    build: ./search-node
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ID=node3
+      - NODE_SPECIALTY=tags
+      - PORT=3003
+    networks:
+      - search-network
+    volumes:
+      - ./data:/data
+
+  index-node-1:
+    build: ./index-node
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ID=index1
+      - PORT=4001
+    networks:
+      - search-network
+    volumes:
+      - ./data:/data
+
+  index-node-2:
+    build: ./index-node
+    ports:
+      - "4002:4002"
+    environment:
+      - NODE_ID=index2
+      - PORT=4002
+    networks:
+      - search-network
+    volumes:
+      - ./data:/data
+
+  monitoring:
+    build: ./monitoring
+    ports:
+      - "8080:8080"
+    environment:
+      - GATEWAY_URL=http://gateway:3000
+    depends_on:
+      - gateway
+    networks:
+      - search-network
+
+networks:
+  search-network:
+    driver: bridge
+
+volumes:
+  search-data:

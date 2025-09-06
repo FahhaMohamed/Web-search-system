@@ -1,0 +1,76 @@
+{
+  "ecommerce": [
+    [
+      "prod_004",
+      {
+        "id": "prod_004",
+        "title": "Smartphone Photography Course",
+        "description": "Learn professional photography techniques using just your smartphone",
+        "tags": [
+          "photography",
+          "course",
+          "smartphone",
+          "mobile",
+          "tutorial"
+        ],
+        "category": "Education",
+        "price": 49.99,
+        "instructor": "PhotoMaster",
+        "duration": "4 hours",
+        "level": "beginner",
+        "domain": "ecommerce",
+        "indexed": "2025-09-06T20:05:09.940Z",
+        "indexNode": "index2",
+        "processedContent": {
+          "title": "Smartphone Photography Course",
+          "description": "Learn professional photography techniques using just your smartphone",
+          "price": 49.99,
+          "category": "Education",
+          "tags": [
+            "photography",
+            "course",
+            "smartphone",
+            "mobile",
+            "tutorial"
+          ]
+        }
+      }
+    ],
+    [
+      "prod_005",
+      {
+        "id": "prod_005",
+        "title": "Organic Coffee Beans Premium Blend",
+        "description": "Sustainably sourced organic coffee beans with rich flavor profile",
+        "tags": [
+          "coffee",
+          "organic",
+          "beans",
+          "premium",
+          "sustainable"
+        ],
+        "category": "Food & Beverage",
+        "price": 24.99,
+        "origin": "Colombia",
+        "roast": "medium",
+        "weight": "500g",
+        "domain": "ecommerce",
+        "indexed": "2025-09-06T20:05:09.940Z",
+        "indexNode": "index2",
+        "processedContent": {
+          "title": "Organic Coffee Beans Premium Blend",
+          "description": "Sustainably sourced organic coffee beans with rich flavor profile",
+          "price": 24.99,
+          "category": "Food & Beverage",
+          "tags": [
+            "coffee",
+            "organic",
+            "beans",
+            "premium",
+            "sustainable"
+          ]
+        }
+      }
+    ]
+  ]
+}
