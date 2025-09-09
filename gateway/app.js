@@ -1,6 +1,6 @@
 // ===== GATEWAY SERVICE (gateway/app.js) =====
 const express = require('express');
-const axios = require('axios');
+const axios = require("axios");
 const cors = require('cors');
 
 const app = express();
@@ -35,7 +35,7 @@ class QueryProcessor {
             textTerms: terms.filter(term => isNaN(term)),
             numericTerms: terms.filter(term => !isNaN(term)),
             fullQuery: query,
-            keywords: terms.slice(0, 5) // Limit to top 5 terms
+            keywords: terms.slice(0, 5) 
         };
     }
 
@@ -46,7 +46,6 @@ class QueryProcessor {
                     query: queryParts,
                     domain: domain,
                     filters: filters,
-                    nodeSpecialty: node.specialty
                 }, { timeout: 5000 });
 
                 return {

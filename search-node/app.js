@@ -1,7 +1,6 @@
 // ===== SEARCH NODE SERVICE (search-node/app.js) =====
 const express = require('express');
 const fs = require("fs").promises;
-const path = require("path");
 
 class SearchNode {
     constructor(nodeId, specialty) {
@@ -148,6 +147,63 @@ const searchNode = new SearchNode(NODE_ID, NODE_SPECIALTY);
 
 const app2 = express();
 app2.use(express.json());
+
+
+// Index documents endpoint - receives documents from index nodes
+app2.post('/index', async (req, res) => {
+    try {
+        const { documents, domain } = req.body;
+        
+        // Validate request
+        if (!documents || !Array.isArray(documents)) {
+            return res.status(400).json({ 
+                error: 'Documents array is required', 
+                nodeId: NODE_ID 
+            });
+        }
+
+        if (!domain) {
+            return res.status(400).json({ 
+                error: 'Domain is required', 
+                nodeId: NODE_ID 
+            });
+        }
+
+        console.log(`Node ${NODE_ID} received ${documents.length} documents for domain: ${domain}`);
+
+        let indexed = 0;
+        
+        // Index each document using the existing indexDocument method
+        documents.forEach(doc => {
+            searchNode.indexDocument(doc, domain);
+            indexed++;
+        });
+
+        // Save the updated index to persistent storage
+        await searchNode.saveIndex();
+
+        console.log(`Node ${NODE_ID} successfully indexed ${indexed} documents in domain: ${domain}`);
+
+        res.json({
+            message: 'Documents indexed successfully',
+            nodeId: NODE_ID,
+            specialty: NODE_SPECIALTY,
+            domain: domain,
+            indexed: indexed,
+            timestamp: new Date().toISOString(),
+            totalDocumentsInDomain: searchNode.domainIndices.get(domain)?.size || 0
+        });
+
+    } catch (error) {
+        console.error(`Index error on search node ${NODE_ID}:`, error);
+        res.status(500).json({ 
+            error: 'Failed to index documents', 
+            nodeId: NODE_ID,
+            specialty: NODE_SPECIALTY,
+            message: error.message 
+        });
+    }
+});
 
 // Search endpoint
 app2.post('/search', async (req, res) => {

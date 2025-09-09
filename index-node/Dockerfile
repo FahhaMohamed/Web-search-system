@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies
 
-RUN npm install express fs
+RUN npm install express fs axios
 
 # Copy application code
 COPY . .

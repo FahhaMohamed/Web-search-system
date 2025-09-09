@@ -1,6 +1,7 @@
 // ===== INDEX NODE SERVICE (index-node/app.js) =====
 const express = require('express');
 const fs = require('fs').promises;
+const axios = require("axios");
 
 class IndexNode {
     constructor(nodeId) {
@@ -150,13 +151,13 @@ app3.use(express.json());
 // Index documents endpoint
 app3.post('/index', async (req, res) => {
     try {
-        const { documents, domain = 'general' } = req.body;
+        const { documents, domain } = req.body;
         
         if (!documents || !Array.isArray(documents)) {
             return res.status(400).json({ error: 'Documents array is required' });
         }
 
-        const indexed = await indexNode.indexDocuments(documents, domain);
+        const indexed = await indexNode.indexDocuments(documents, domain);//------------------------------
         
         res.json({
             message: 'Documents indexed successfully',
