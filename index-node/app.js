@@ -1,4 +1,3 @@
-// ===== INDEX NODE SERVICE (index-node/app.js) =====
 const express = require('express');
 const fs = require('fs').promises;
 const axios = require("axios");

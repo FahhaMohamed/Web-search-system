@@ -1,4 +1,3 @@
-// ===== GATEWAY SERVICE (gateway/app.js) =====
 const express = require('express');
 const axios = require("axios");
 const cors = require('cors');

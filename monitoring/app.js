@@ -1,4 +1,3 @@
-// ===== MONITORING SERVICE (monitoring/app.js) =====
 const express = require('express');
 const axios = require('axios');
 

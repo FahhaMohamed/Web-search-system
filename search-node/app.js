@@ -1,4 +1,3 @@
-// ===== FIXED OPTIMIZED SEARCH NODE SERVICE (search-node/app.js) =====
 const express = require('express');
 const fs = require("fs").promises;
 
