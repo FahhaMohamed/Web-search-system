@@ -12,6 +12,18 @@ services:
     volumes:
       - ./data:/data
 
+  specialty-node:
+    build: ./specialty-node
+    ports:
+      - "6000:6000"
+    environment:
+      - PORT=6000
+      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+    depends_on:
+      - schema-registry
+    networks:
+      - search-network
+
   gateway:
     build: ./gateway
     ports:

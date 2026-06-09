@@ -1,29 +1,21 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const { FileStorage } = require('./storage');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const SCHEMA_FILE = path.join(DATA_DIR, 'schemas.json');
+const DEFAULT_SCHEMA_FILE = path.join(__dirname, '..', 'data', 'schemas.json');
 
 class SchemaRegistry {
-    constructor() {
+    constructor(storage) {
         this.schemas = new Map();
+        this.storage = storage || new FileStorage(DEFAULT_SCHEMA_FILE);
     }
 
     save() {
-        if (!fs.existsSync(DATA_DIR)) {
-            fs.mkdirSync(DATA_DIR, { recursive: true });
-        }
-        const obj = Object.fromEntries(this.schemas);
-        fs.writeFileSync(SCHEMA_FILE, JSON.stringify(obj, null, 2), 'utf8');
+        this.storage.write(Object.fromEntries(this.schemas));
     }
 
     load() {
-        if (!fs.existsSync(SCHEMA_FILE)) {
-            return;
-        }
-        const raw = fs.readFileSync(SCHEMA_FILE, 'utf8');
-        const obj = JSON.parse(raw);
+        const obj = this.storage.read();
         this.schemas = new Map(Object.entries(obj));
     }
 }
