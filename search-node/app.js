@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { DocStore } = require('./docStore');
-const { FileStorage } = require('../schema-registry/storage');
+const { FileStorage } = require('./storage');
 const { SchemaClient } = require('./schemaClient');
 const { textSearch } = require('./textSearch');
 const { metadataSearch } = require('./metadataSearch');
