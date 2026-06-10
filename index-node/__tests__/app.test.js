@@ -15,7 +15,10 @@ function makeApp(stubs = {}) {
             { node: 'tags', ok: true, indexed: docs.length },
         ],
     };
-    return createApp({ nodeId: 'index-test', schemaClient, indexClient });
+    const shardClient = stubs.shardClient || {
+        putDocs: async (_domain, docs) => ({ ok: true, stored: docs.length, ids: docs.map(d => d.id) }),
+    };
+    return createApp({ nodeId: 'index-test', schemaClient, indexClient, shardClient });
 }
 
 describe('index-node app — /health', () => {
@@ -96,6 +99,41 @@ describe('index-node app — /index fan-out', () => {
         });
         expect(Array.isArray(res.body.searchNodes)).toBe(true);
         expect(res.body.searchNodes).toHaveLength(3);
+    });
+
+    test('writes docs to Shard Cluster BEFORE fanning out to search nodes', async () => {
+        const order = [];
+        const app = makeApp({
+            shardClient: { putDocs: async (_d, docs) => { order.push('shard'); return { ok: true, stored: docs.length, ids: docs.map(d => d.id) }; } },
+            indexClient: { fanOut: async (_d, docs) => { order.push('fanout'); return [{ node: 'text', ok: true, indexed: docs.length }]; } },
+        });
+
+        await request(app).post('/index').send({ domain: 'ecommerce', documents: [{ id: 'a' }] });
+
+        expect(order).toEqual(['shard', 'fanout']);
+    });
+
+    test('response body includes shard ack', async () => {
+        const res = await request(makeApp())
+            .post('/index')
+            .send({ domain: 'ecommerce', documents: [{ id: 'a' }, { id: 'b' }] });
+
+        expect(res.status).toBe(200);
+        expect(res.body.shardCluster).toMatchObject({ ok: true, stored: 2 });
+    });
+
+    test('does not fan-out when Shard Cluster write fails', async () => {
+        let fanoutCalled = false;
+        const app = makeApp({
+            shardClient: { putDocs: async () => ({ ok: false, error: 'shard down' }) },
+            indexClient: { fanOut: async () => { fanoutCalled = true; return []; } },
+        });
+
+        const res = await request(app).post('/index').send({ domain: 'ecommerce', documents: [{ id: 'a' }] });
+
+        expect(fanoutCalled).toBe(false);
+        expect(res.status).toBe(502);
+        expect(res.body.error).toMatch(/shard/i);
     });
 
     test('207-style mixed success: returns 200 but flags failures in body', async () => {

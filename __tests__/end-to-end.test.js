@@ -25,6 +25,13 @@ const { IndexClient: GatewayIndexClient } = require('../gateway/indexClient');
 const { createApp: createIndexApp } = require('../index-node/app');
 const { SchemaClient: IndexSchemaClient } = require('../index-node/schemaClient');
 const { IndexClient: NodeIndexClient } = require('../index-node/indexClient');
+const { ShardClient: IndexShardClient } = require('../index-node/shardClient');
+
+const { createApp: createShardApp } = require('../shard-cluster/app');
+const { ShardStore } = require('../shard-cluster/storage');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 const servers = [];
 
@@ -38,13 +45,19 @@ function listen(app) {
     });
 }
 
-let schemaSrv, textSrv, metaSrv, tagsSrv, specialtySrv, indexSrv;
+let schemaSrv, textSrv, metaSrv, tagsSrv, specialtySrv, indexSrv, shardSrv;
 
 beforeAll(async () => {
     registry.storage = { read: () => ({}), write: () => {} };
     registry.schemas.clear();
 
     schemaSrv = await listen(schemaApp);
+
+    const shardDir = fs.mkdtempSync(path.join(os.tmpdir(), 'e2e-shard-'));
+    shardSrv = await listen(createShardApp({
+        nodeId: 'shard-e2e',
+        store: new ShardStore({ shardCount: 4, baseDir: shardDir }),
+    }));
 
     textSrv = await listen(createSearchApp({
         specialty: 'text', nodeId: 'text-1',
@@ -73,6 +86,7 @@ beforeAll(async () => {
             metadata: metaSrv.url,
             tags: tagsSrv.url,
         }),
+        shardClient: new IndexShardClient(shardSrv.url),
     }));
 
     setSpecialtyClient(new SpecialtyClient(specialtySrv.url));

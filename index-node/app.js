@@ -1,9 +1,10 @@
 const express = require('express');
 const { SchemaClient } = require('./schemaClient');
 const { IndexClient } = require('./indexClient');
+const { ShardClient } = require('./shardClient');
 
-function createApp({ nodeId, schemaClient, indexClient }) {
-    const state = { nodeId, schemaClient, indexClient };
+function createApp({ nodeId, schemaClient, indexClient, shardClient }) {
+    const state = { nodeId, schemaClient, indexClient, shardClient };
     const app = express();
     app.use(express.json());
 
@@ -20,12 +21,18 @@ function createApp({ nodeId, schemaClient, indexClient }) {
         const schema = await state.schemaClient.fetch(domain);
         if (!schema) return res.status(404).json({ error: `Domain not registered: ${domain}` });
 
+        const shardAck = await state.shardClient.putDocs(domain, documents);
+        if (!shardAck.ok) {
+            return res.status(502).json({ error: `Shard Cluster write failed: ${shardAck.error}` });
+        }
+
         const searchNodes = await state.indexClient.fanOut(domain, documents);
 
         res.json({
             domain,
             received: documents.length,
             nodeId: state.nodeId,
+            shardCluster: shardAck,
             searchNodes,
         });
     });
@@ -36,6 +43,7 @@ function createApp({ nodeId, schemaClient, indexClient }) {
 
 const NODE_ID = process.env.NODE_ID || 'index-1';
 const SCHEMA_REGISTRY_URL = process.env.SCHEMA_REGISTRY_URL || 'http://localhost:5000';
+const SHARD_CLUSTER_URL = process.env.SHARD_CLUSTER_URL || 'http://localhost:7000';
 const SEARCH_NODE_URLS = {
     text: process.env.TEXT_NODE_URL || 'http://search-node-1:3001',
     metadata: process.env.METADATA_NODE_URL || 'http://search-node-2:3002',
@@ -46,10 +54,12 @@ const defaultApp = createApp({
     nodeId: NODE_ID,
     schemaClient: new SchemaClient(SCHEMA_REGISTRY_URL),
     indexClient: new IndexClient(SEARCH_NODE_URLS),
+    shardClient: new ShardClient(SHARD_CLUSTER_URL),
 });
 
 function setSchemaClient(c) { defaultApp._state.schemaClient = c; }
 function setIndexClient(c) { defaultApp._state.indexClient = c; }
+function setShardClient(c) { defaultApp._state.shardClient = c; }
 
 const PORT = process.env.PORT || 4001;
 
@@ -59,4 +69,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app: defaultApp, createApp, setSchemaClient, setIndexClient };
+module.exports = { app: defaultApp, createApp, setSchemaClient, setIndexClient, setShardClient };
