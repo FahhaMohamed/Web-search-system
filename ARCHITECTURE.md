@@ -121,8 +121,17 @@ That is why the diagram shows **two arrows** between them — one question, one 
 | 2 | Gateway → Query Splitter | Splits into text + numeric parts |
 | 3 | Query Splitter ↔ Specialty Node | Asks "which nodes?", gets answer |
 | 4 | Query Splitter → selected Search Nodes (parallel) | Sends query only to chosen ones |
-| 5 | Search Nodes → Merge & Rank | Each returns top-K, gateway combines |
-| 6 | Merge & Rank → Client | Final ranked results |
+| 5 | Search Nodes → Merge & Rank | Each returns top-K **IDs + scores only** (not full docs) |
+| 6 | Merge & Rank → Shard Cluster | Batch-fetch full docs for the final top-K ids (**late hydrate**) |
+| 7 | Merge & Rank → Client | Final ranked results with full document fields |
+
+### Why "late hydrate" from Shard Cluster
+
+Search Nodes do not return the full document. They return only `{ id, score }`. Reasons:
+
+- **Less inter-node traffic** — a query hitting 3 nodes with 100 results each = 300 ids, not 300 fat JSON blobs.
+- **Single source of truth** — full docs live in Shard Cluster only. Search nodes hold just their index slice (text / metadata / tags) in Phase 2.
+- **Cheap top-K hydrate** — after Merge & Rank picks the final top-K (say 20), it does ONE batch call to Shard Cluster to fetch those 20 full docs. Tiny payload.
 
 ### Diagram
 
@@ -163,12 +172,15 @@ That is why the diagram shows **two arrows** between them — one question, one 
         │                             │           │           │
         │             (each node can split into internal shards for big data)
         │                             │           │           │
+        │                             │  ids+scores only (no full docs)
         │                             └───────────┼───────────┘
         │                                         ▼
-        │  Search Results            ┌──────────────────────────┐
-        └────────────────────────────│  Merge and Rank Results  │
-                                     │  (late fusion + norm.)   │
-                                     └──────────────────────────┘
+        │  Final ranked              ┌──────────────────────────┐                 ┌──────────────────┐
+        │  results (full docs)       │  Merge and Rank Results  │ ─ top-K ids ──▶ │  Shard Cluster   │
+        └────────────────────────────│  (late fusion + norm.)   │                 │ (raw doc store,  │
+                                     │                          │ ◀── full docs ──│  source of truth)│
+                                     └──────────────────────────┘                 └──────────────────┘
+                                                ▲   one batch call to hydrate the final top-K only
 
    Side helpers (not on main path):
    • Replica Nodes      → backup for Text / Metadata / Tags (used if main fails)
