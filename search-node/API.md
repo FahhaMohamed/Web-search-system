@@ -171,6 +171,19 @@ The search functions are deliberately **pure** (no I/O, no globals): you give th
 
 ---
 
+## Design note — every node stores the full document (today)
+
+In Phase 1, each Search Node stores the entire document, not just the fields it actually searches. Inspect `data/text-node.json` and `data/metadata-node.json` and you will see the same payloads in both.
+
+This is **intentional**, not a bug:
+- Each node is self-contained — search returns the full doc directly, no second hop.
+- Results stay correct (the search functions only look at their schema slice; extra fields are ignored).
+- It defines a clear swap-point for Phase 2.
+
+**Phase 2 plan:** A separate **Shard Cluster** becomes the source of truth for raw documents. Each Search Node then keeps only the data structure it needs — inverted index (text), B-tree (metadata), hash map (tags) — and Gateway hydrates result IDs from the Shard Cluster. Storage cost drops from 3× to ~1.2×.
+
+---
+
 ## Limitations / known gaps
 
 - **Search is contains-match, not index-based.** Every search scans every doc in the domain. Fine for prototyping; Phase 2 replaces this with inverted indexes (text), B-trees (metadata), and hash maps (tags).
