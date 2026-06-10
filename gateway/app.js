@@ -1,24 +1,23 @@
 const express = require('express');
-const axios = require('axios');
 const cors = require('cors');
 const { SpecialtyClient } = require('./specialtyClient');
 const { SearchClient } = require('./searchClient');
+const { IndexClient } = require('./indexClient');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const SPECIALTY_NODE_URL = process.env.SPECIALTY_NODE_URL || 'http://specialty-node:6000';
+const INDEX_NODE_URL = process.env.INDEX_NODE_URL || 'http://index-node-1:4001';
+
 let specialtyClient = new SpecialtyClient(SPECIALTY_NODE_URL);
 let searchClient = new SearchClient();
+let indexClient = new IndexClient(INDEX_NODE_URL);
 
 function setSpecialtyClient(client) { specialtyClient = client; }
 function setSearchClient(client) { searchClient = client; }
-
-const INDEX_NODES = [
-    { id: 'index1', url: process.env.INDEX_NODE_1_URL || 'http://index-node-1:4001' },
-    { id: 'index2', url: process.env.INDEX_NODE_2_URL || 'http://index-node-2:4002' },
-];
+function setIndexClient(client) { indexClient = client; }
 
 function mergeResults(nodeResults) {
     const merged = new Map();
@@ -86,33 +85,16 @@ app.post('/api/search', async (req, res) => {
 });
 
 app.post('/api/index', async (req, res) => {
+    const { documents, domain } = req.body || {};
+    if (!domain) return res.status(400).json({ error: 'domain is required' });
+    if (!Array.isArray(documents)) return res.status(400).json({ error: 'documents array is required' });
+
     try {
-        const { documents, domain } = req.body || {};
-        if (!documents || !Array.isArray(documents)) {
-            return res.status(400).json({ error: 'Documents array is required' });
-        }
-        const chunkSize = Math.ceil(documents.length / INDEX_NODES.length);
-        const indexPromises = INDEX_NODES.map(async (node, index) => {
-            const chunk = documents.slice(index * chunkSize, (index + 1) * chunkSize);
-            if (chunk.length === 0) return { nodeId: node.id, indexed: 0 };
-            try {
-                await axios.post(`${node.url}/index`, { documents: chunk, domain });
-                return { nodeId: node.id, indexed: chunk.length, success: true };
-            } catch (error) {
-                return { nodeId: node.id, indexed: 0, error: error.message };
-            }
-        });
-        const indexResults = await Promise.all(indexPromises);
-        const totalIndexed = indexResults.reduce((s, r) => s + (r.indexed || 0), 0);
-        res.json({
-            message: 'Indexing completed',
-            domain,
-            totalDocuments: documents.length,
-            totalIndexed,
-            indexNodes: indexResults,
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Indexing failed', details: error.message });
+        const result = await indexClient.index(domain, documents);
+        res.json(result);
+    } catch (err) {
+        const status = err.status || 500;
+        res.status(status).json({ error: err.message });
     }
 });
 
@@ -128,4 +110,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app, setSpecialtyClient, setSearchClient };
+module.exports = { app, setSpecialtyClient, setSearchClient, setIndexClient };

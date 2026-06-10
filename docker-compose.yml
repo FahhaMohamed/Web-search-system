@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   schema-registry:
     build: ./schema-registry
+    container_name: schema-registry
     ports:
       - "5000:5000"
     environment:
@@ -14,6 +13,7 @@ services:
 
   specialty-node:
     build: ./specialty-node
+    container_name: specialty-node
     ports:
       - "6000:6000"
     environment:
@@ -26,88 +26,97 @@ services:
 
   gateway:
     build: ./gateway
+    container_name: gateway
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - SPECIALTY_NODE_URL=http://specialty-node:6000
+      - INDEX_NODE_URL=http://index-node:4001
+      - TEXT_NODE_URL=http://text-node:3001
+      - METADATA_NODE_URL=http://metadata-node:3002
+      - TAGS_NODE_URL=http://tags-node:3003
     depends_on:
       - schema-registry
-      - search-node-1
-      - search-node-2
-      - search-node-3
-      - index-node-1
-      - index-node-2
+      - specialty-node
+      - text-node
+      - metadata-node
+      - tags-node
+      - index-node
     networks:
       - search-network
     volumes:
       - ./data:/data
 
-  search-node-1:
+  text-node:
     build: ./search-node
+    container_name: text-node
     ports:
       - "3001:3001"
     environment:
-      - NODE_ID=node1
+      - NODE_ID=text-node
       - NODE_SPECIALTY=text
       - PORT=3001
+      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
     networks:
       - search-network
     volumes:
       - ./data:/data
 
-  search-node-2:
+  metadata-node:
     build: ./search-node
+    container_name: metadata-node
     ports:
       - "3002:3002"
     environment:
-      - NODE_ID=node2
+      - NODE_ID=metadata-node
       - NODE_SPECIALTY=metadata
       - PORT=3002
+      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
     networks:
       - search-network
     volumes:
       - ./data:/data
 
-  search-node-3:
+  tags-node:
     build: ./search-node
+    container_name: tags-node
     ports:
       - "3003:3003"
     environment:
-      - NODE_ID=node3
+      - NODE_ID=tags-node
       - NODE_SPECIALTY=tags
       - PORT=3003
+      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
     networks:
       - search-network
     volumes:
       - ./data:/data
 
-  index-node-1:
+  index-node:
     build: ./index-node
+    container_name: index-node
     ports:
       - "4001:4001"
     environment:
-      - NODE_ID=index1
+      - NODE_ID=index-node
       - PORT=4001
+      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - TEXT_NODE_URL=http://text-node:3001
+      - METADATA_NODE_URL=http://metadata-node:3002
+      - TAGS_NODE_URL=http://tags-node:3003
+    depends_on:
+      - schema-registry
+      - text-node
+      - metadata-node
+      - tags-node
     networks:
       - search-network
-    volumes:
-      - ./data:/data
-
-  index-node-2:
-    build: ./index-node
-    ports:
-      - "4002:4002"
-    environment:
-      - NODE_ID=index2
-      - PORT=4002
-    networks:
-      - search-network
-    volumes:
-      - ./data:/data
 
   monitoring:
     build: ./monitoring
+    container_name: monitoring
     ports:
       - "8080:8080"
     environment:

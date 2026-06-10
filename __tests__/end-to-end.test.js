@@ -16,9 +16,15 @@ const {
     app: gatewayApp,
     setSpecialtyClient,
     setSearchClient,
+    setIndexClient: setGatewayIndexClient,
 } = require('../gateway/app');
 const { SpecialtyClient } = require('../gateway/specialtyClient');
 const { SearchClient } = require('../gateway/searchClient');
+const { IndexClient: GatewayIndexClient } = require('../gateway/indexClient');
+
+const { createApp: createIndexApp } = require('../index-node/app');
+const { SchemaClient: IndexSchemaClient } = require('../index-node/schemaClient');
+const { IndexClient: NodeIndexClient } = require('../index-node/indexClient');
 
 const servers = [];
 
@@ -32,7 +38,7 @@ function listen(app) {
     });
 }
 
-let schemaSrv, textSrv, metaSrv, tagsSrv, specialtySrv;
+let schemaSrv, textSrv, metaSrv, tagsSrv, specialtySrv, indexSrv;
 
 beforeAll(async () => {
     registry.storage = { read: () => ({}), write: () => {} };
@@ -59,12 +65,23 @@ beforeAll(async () => {
     setSpecialtySchemaClient(new SpecialtySchemaClient(schemaSrv.url));
     specialtySrv = await listen(specialtyApp);
 
+    indexSrv = await listen(createIndexApp({
+        nodeId: 'index-1',
+        schemaClient: new IndexSchemaClient(schemaSrv.url),
+        indexClient: new NodeIndexClient({
+            text: textSrv.url,
+            metadata: metaSrv.url,
+            tags: tagsSrv.url,
+        }),
+    }));
+
     setSpecialtyClient(new SpecialtyClient(specialtySrv.url));
     setSearchClient(new SearchClient({
         text: textSrv.url,
         metadata: metaSrv.url,
         tags: tagsSrv.url,
     }));
+    setGatewayIndexClient(new GatewayIndexClient(indexSrv.url));
 });
 
 afterAll(() => {
@@ -145,5 +162,47 @@ describe('end-to-end: schema registry + specialty + 3 search nodes + gateway', (
             domain: 'ecommerce', query: 'red shoes', minConfidence: 0.6,
         });
         expect(res.body.routing.map(n => n.name)).toEqual(['text']);
+    });
+});
+
+describe('end-to-end STORE path: Gateway -> Index Node -> 3 Search Nodes', () => {
+    test('docs indexed via Gateway /api/index become searchable via /api/search', async () => {
+        await request(schemaApp).post('/schema/recipes').send({
+            text: ['title', 'instructions'],
+            metadata: ['calories', 'prepTime'],
+            tags: ['cuisine', 'diet'],
+        });
+
+        const recipes = [
+            { id: 'r1', title: 'pasta carbonara', instructions: 'boil water', calories: 600, prepTime: 20, cuisine: ['italian'], diet: ['none'] },
+            { id: 'r2', title: 'green salad',     instructions: 'chop greens', calories: 150, prepTime: 5,  cuisine: ['mediterranean'], diet: ['vegan'] },
+        ];
+
+        const indexRes = await request(gatewayApp).post('/api/index').send({
+            domain: 'recipes', documents: recipes,
+        });
+
+        expect(indexRes.status).toBe(200);
+        expect(indexRes.body.received).toBe(2);
+        expect(indexRes.body.searchNodes).toHaveLength(3);
+        expect(indexRes.body.searchNodes.every(s => s.ok)).toBe(true);
+
+        const searchRes = await request(gatewayApp).post('/api/search').send({
+            domain: 'recipes', query: 'pasta',
+        });
+        expect(searchRes.status).toBe(200);
+        expect(searchRes.body.results.map(r => r.id)).toContain('r1');
+    });
+
+    test('Gateway /api/index returns 404 when domain is not registered', async () => {
+        const res = await request(gatewayApp).post('/api/index').send({
+            domain: 'ghost-domain', documents: [{ id: 'x', title: 'nope' }],
+        });
+        expect(res.status).toBe(404);
+    });
+
+    test('Gateway /api/index returns 400 when documents missing', async () => {
+        const res = await request(gatewayApp).post('/api/index').send({ domain: 'recipes' });
+        expect(res.status).toBe(400);
     });
 });

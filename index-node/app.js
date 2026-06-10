@@ -1,190 +1,62 @@
 const express = require('express');
-const fs = require('fs').promises;
-const axios = require("axios");
+const { SchemaClient } = require('./schemaClient');
+const { IndexClient } = require('./indexClient');
 
-class IndexNode {
-    constructor(nodeId) {
-        this.nodeId = nodeId;
-        this.documents = new Map();
-        this.domainMappings = new Map();
-        this.initialize();
-    }
+function createApp({ nodeId, schemaClient, indexClient }) {
+    const state = { nodeId, schemaClient, indexClient };
+    const app = express();
+    app.use(express.json());
 
-    async initialize() {
-        console.log(`Initializing Index Node ${this.nodeId}`);
-        await this.loadExistingDocuments();
-    }
+    app.get('/health', (req, res) => {
+        res.json({ status: 'ok', service: 'index-node', nodeId: state.nodeId });
+    });
 
-    async loadExistingDocuments() {
-        try {
-            const dataPath = `/data/documents_${this.nodeId}.json`;
-            const data = await fs.readFile(dataPath, 'utf8');
-            const documentsData = JSON.parse(data);
-            
-            Object.entries(documentsData).forEach(([domain, docs]) => {
-                this.domainMappings.set(domain, new Map(docs));
-            });
-            
-            console.log(`Loaded existing documents for index node ${this.nodeId}`);
-        } catch (error) {
-            console.log(`No existing documents found for index node ${this.nodeId}`);
-        }
-    }
+    app.post('/index', async (req, res) => {
+        const { domain, documents } = req.body || {};
+        if (!domain) return res.status(400).json({ error: 'domain is required' });
+        if (!Array.isArray(documents)) return res.status(400).json({ error: 'documents array is required' });
+        if (documents.length === 0) return res.status(400).json({ error: 'documents array is empty' });
 
-    async saveDocuments() {
-        try {
-            const documentsData = {};
-            this.domainMappings.forEach((docs, domain) => {
-                documentsData[domain] = Array.from(docs.entries());
-            });
+        const schema = await state.schemaClient.fetch(domain);
+        if (!schema) return res.status(404).json({ error: `Domain not registered: ${domain}` });
 
-            const dataPath = `/data/documents_${this.nodeId}.json`;
-            await fs.writeFile(dataPath, JSON.stringify(documentsData, null, 2));
-            console.log(`Documents saved for index node ${this.nodeId}`);
-        } catch (error) {
-            console.error(`Failed to save documents for index node ${this.nodeId}:`, error);
-        }
-    }
+        const searchNodes = await state.indexClient.fanOut(domain, documents);
 
-    async indexDocuments(documents, domain) {
-        if (!this.domainMappings.has(domain)) {
-            this.domainMappings.set(domain, new Map());
-        }
-
-        const domainDocs = this.domainMappings.get(domain);
-        let indexed = 0;
-
-        for (const doc of documents) {
-            const docId = doc.id || `${domain}_${Date.now()}_${Math.random()}`;
-            const processedDoc = this.processDocument(doc, domain);
-            
-            domainDocs.set(docId, processedDoc);
-            indexed++;
-        }
-
-        await this.saveDocuments();
-        await this.distributeToSearchNodes(documents, domain);
-        
-        return indexed;
-    }
-
-    processDocument(document, domain) {
-        return {
-            ...document,
-            domain: domain,
-            indexed: new Date().toISOString(),
-            indexNode: this.nodeId,
-            // Add domain-specific processing
-            processedContent: this.extractContent(document, domain)
-        };
-    }
-
-    extractContent(document, domain) {
-        // Domain-specific content extraction
-        switch (domain) {
-            case 'ecommerce':
-                return {
-                    title: document.title || document.name,
-                    description: document.description,
-                    price: document.price,
-                    category: document.category,
-                    tags: document.tags || [],
-                    brand: document.brand
-                };
-            case 'social':
-                return {
-                    content: document.content || document.text,
-                    author: document.author || document.username,
-                    hashtags: document.hashtags || [],
-                    mentions: document.mentions || [],
-                    timestamp: document.timestamp
-                };
-            case 'media':
-                return {
-                    title: document.title,
-                    description: document.description,
-                    tags: document.tags || [],
-                    fileType: document.fileType,
-                    resolution: document.resolution,
-                    creator: document.creator
-                };
-            default:
-                return {
-                    title: document.title,
-                    content: document.content,
-                    description: document.description,
-                    tags: document.tags || []
-                };
-        }
-    }
-
-    async distributeToSearchNodes(documents, domain) {
-        const searchNodes = [
-            'http://search-node-1:3001',
-            'http://search-node-2:3002',
-            'http://search-node-3:3003'
-        ];
-
-        const promises = searchNodes.map(async (nodeUrl) => {
-            try {
-                await axios.post(`${nodeUrl}/index`, {
-                    documents: documents,
-                    domain: domain
-                });
-                console.log(`Distributed to search node: ${nodeUrl}`);
-            } catch (error) {
-                console.error(`Failed to distribute to ${nodeUrl}:`, error.message);
-            }
+        res.json({
+            domain,
+            received: documents.length,
+            nodeId: state.nodeId,
+            searchNodes,
         });
+    });
 
-        await Promise.all(promises);
-    }
+    app._state = state;
+    return app;
 }
 
-const INDEX_NODE_ID = process.env.NODE_ID || 'index1';
-const indexNode = new IndexNode(INDEX_NODE_ID);
+const NODE_ID = process.env.NODE_ID || 'index-1';
+const SCHEMA_REGISTRY_URL = process.env.SCHEMA_REGISTRY_URL || 'http://localhost:5000';
+const SEARCH_NODE_URLS = {
+    text: process.env.TEXT_NODE_URL || 'http://search-node-1:3001',
+    metadata: process.env.METADATA_NODE_URL || 'http://search-node-2:3002',
+    tags: process.env.TAGS_NODE_URL || 'http://search-node-3:3003',
+};
 
-const app3 = express();
-app3.use(express.json());
-
-// Index documents endpoint
-app3.post('/index', async (req, res) => {
-    try {
-        const { documents, domain } = req.body;
-        
-        if (!documents || !Array.isArray(documents)) {
-            return res.status(400).json({ error: 'Documents array is required' });
-        }
-
-        const indexed = await indexNode.indexDocuments(documents, domain);//------------------------------
-        
-        res.json({
-            message: 'Documents indexed successfully',
-            nodeId: INDEX_NODE_ID,
-            domain: domain,
-            indexed: indexed,
-            timestamp: new Date().toISOString()
-        });
-    } catch (error) {
-        console.error(`Index error on node ${INDEX_NODE_ID}:`, error);
-        res.status(500).json({ error: 'Indexing failed', nodeId: INDEX_NODE_ID });
-    }
+const defaultApp = createApp({
+    nodeId: NODE_ID,
+    schemaClient: new SchemaClient(SCHEMA_REGISTRY_URL),
+    indexClient: new IndexClient(SEARCH_NODE_URLS),
 });
 
-// Health check
-app3.get('/health', (req, res) => {
-    res.json({
-        nodeId: INDEX_NODE_ID,
-        type: 'index',
-        status: 'healthy',
-        uptime: process.uptime(),
-        domains: Array.from(indexNode.domainMappings.keys()),
-        totalDocuments: Array.from(indexNode.domainMappings.values())
-            .reduce((sum, docs) => sum + docs.size, 0)
+function setSchemaClient(c) { defaultApp._state.schemaClient = c; }
+function setIndexClient(c) { defaultApp._state.indexClient = c; }
+
+const PORT = process.env.PORT || 4001;
+
+if (require.main === module) {
+    defaultApp.listen(PORT, () => {
+        console.log(`Index Node (${NODE_ID}) listening on port ${PORT}`);
     });
-});
+}
 
-const INDEX_PORT = process.env.PORT || 4001;
-app3.listen(INDEX_PORT, () => {
-    console.log(`Index Node ${INDEX_NODE_ID} running on port ${INDEX_PORT}`);
-});
+module.exports = { app: defaultApp, createApp, setSchemaClient, setIndexClient };
