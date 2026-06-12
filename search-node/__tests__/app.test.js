@@ -158,4 +158,19 @@ describe('search-node app — response shape', () => {
         });
         expect(Array.isArray(res.body.results)).toBe(true);
     });
+
+    test('each result contains only {id, score} — no full document fields', async () => {
+        setUp('text');
+        await request(app).post('/index').send({
+            domain: 'ecommerce',
+            documents: [{ id: 'a', title: 'red shoes', description: 'sneakers', price: 100 }],
+        });
+        const res = await request(app).post('/search').send({ domain: 'ecommerce', query: 'red' });
+
+        expect(res.body.results).toHaveLength(1);
+        const first = res.body.results[0];
+        expect(Object.keys(first).sort()).toEqual(['id', 'score']);
+        expect(first.id).toBe('a');
+        expect(typeof first.score).toBe('number');
+    });
 });

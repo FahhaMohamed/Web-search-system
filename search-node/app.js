@@ -60,7 +60,8 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
         const docs = state.docStore.list(domain);
         const results = handler.run(query, docs, fields)
             .map(r => applyFilters(r, filters))
-            .filter(Boolean);
+            .filter(Boolean)
+            .map(r => ({ id: r.id, score: r.score }));
 
         res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
     });

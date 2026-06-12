@@ -34,6 +34,7 @@ services:
       - SCHEMA_REGISTRY_URL=http://schema-registry:5000
       - SPECIALTY_NODE_URL=http://specialty-node:6000
       - INDEX_NODE_URL=http://index-node:4001
+      - SHARD_CLUSTER_URL=http://shard-cluster:7000
       - TEXT_NODE_URL=http://text-node:3001
       - METADATA_NODE_URL=http://metadata-node:3002
       - TAGS_NODE_URL=http://tags-node:3003
@@ -44,6 +45,7 @@ services:
       - metadata-node
       - tags-node
       - index-node
+      - shard-cluster
     networks:
       - search-network
     volumes:
@@ -103,16 +105,33 @@ services:
       - NODE_ID=index-node
       - PORT=4001
       - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - SHARD_CLUSTER_URL=http://shard-cluster:7000
       - TEXT_NODE_URL=http://text-node:3001
       - METADATA_NODE_URL=http://metadata-node:3002
       - TAGS_NODE_URL=http://tags-node:3003
     depends_on:
       - schema-registry
+      - shard-cluster
       - text-node
       - metadata-node
       - tags-node
     networks:
       - search-network
+
+  shard-cluster:
+    build: ./shard-cluster
+    container_name: shard-cluster
+    ports:
+      - "7000:7000"
+    environment:
+      - NODE_ID=shard-cluster
+      - PORT=7000
+      - SHARD_COUNT=4
+      - DATA_DIR=/data/shards
+    networks:
+      - search-network
+    volumes:
+      - ./data:/data
 
   monitoring:
     build: ./monitoring

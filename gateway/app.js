@@ -3,6 +3,7 @@ const cors = require('cors');
 const { SpecialtyClient } = require('./specialtyClient');
 const { SearchClient } = require('./searchClient');
 const { IndexClient } = require('./indexClient');
+const { ShardClient } = require('./shardClient');
 
 const app = express();
 app.use(express.json());
@@ -10,14 +11,17 @@ app.use(cors());
 
 const SPECIALTY_NODE_URL = process.env.SPECIALTY_NODE_URL || 'http://specialty-node:6000';
 const INDEX_NODE_URL = process.env.INDEX_NODE_URL || 'http://index-node-1:4001';
+const SHARD_CLUSTER_URL = process.env.SHARD_CLUSTER_URL || 'http://shard-cluster:7000';
 
 let specialtyClient = new SpecialtyClient(SPECIALTY_NODE_URL);
 let searchClient = new SearchClient();
 let indexClient = new IndexClient(INDEX_NODE_URL);
+let shardClient = new ShardClient(SHARD_CLUSTER_URL);
 
 function setSpecialtyClient(client) { specialtyClient = client; }
 function setSearchClient(client) { searchClient = client; }
 function setIndexClient(client) { indexClient = client; }
+function setShardClient(client) { shardClient = client; }
 
 function mergeResults(nodeResults) {
     const merged = new Map();
@@ -68,11 +72,21 @@ app.post('/api/search', async (req, res) => {
     }));
 
     const finalResults = mergeResults(nodeResponses);
+    const topK = finalResults.slice(0, limit);
+
+    const ids = topK.map(r => r.id).filter(Boolean);
+    const fullDocs = await shardClient.batchGet(domain, ids);
+    const byId = new Map(fullDocs.map(d => [d.id, d]));
+    const hydrated = topK.map(r => {
+        const doc = byId.get(r.id);
+        return doc ? { ...doc, score: r.score, sources: r.sources } : r;
+    });
+
     res.json({
         query,
         domain,
         totalResults: finalResults.length,
-        results: finalResults.slice(0, limit),
+        results: hydrated,
         routing: nodes,
         searchNodes: nodeResponses.map(nr => ({
             nodeName: nr.nodeName,
@@ -110,4 +124,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app, setSpecialtyClient, setSearchClient, setIndexClient };
+module.exports = { app, setSpecialtyClient, setSearchClient, setIndexClient, setShardClient };

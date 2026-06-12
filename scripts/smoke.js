@@ -16,6 +16,7 @@ const axios = require('axios');
 
 const GATEWAY = process.env.GATEWAY_URL || 'http://localhost:3000';
 const SCHEMA_REGISTRY = process.env.SCHEMA_REGISTRY_URL || 'http://localhost:5000';
+const SHARD_CLUSTER = process.env.SHARD_CLUSTER_URL || 'http://localhost:7000';
 const DOMAIN = 'recipes';
 
 let failures = 0;
@@ -46,6 +47,7 @@ async function main() {
 
     console.log('Waiting for services to be ready...');
     await waitForHealth('schema-registry', `${SCHEMA_REGISTRY}/health`);
+    await waitForHealth('shard-cluster',   `${SHARD_CLUSTER}/health`);
     await waitForHealth('gateway',         `${GATEWAY}/api/health`);
     console.log('Services healthy.\n');
 
@@ -78,6 +80,10 @@ async function main() {
     const textIds = textRes.data.results.map(r => r.id);
     assert('text result contains r1', textIds.includes('r1'), textIds);
     assert('routing includes text node', textRes.data.routing.some(n => n.name === 'text'), textRes.data.routing);
+
+    const r1 = textRes.data.results.find(r => r.id === 'r1');
+    assert('result is hydrated with full doc from Shard Cluster (title)', r1 && r1.title === 'pasta carbonara', r1);
+    assert('result is hydrated with full doc from Shard Cluster (calories)', r1 && r1.calories === 600, r1);
 
     // -- Step 4: metadata query --
     console.log('\n4) Metadata search "calories<300"');

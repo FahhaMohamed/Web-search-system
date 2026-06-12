@@ -17,10 +17,12 @@ const {
     setSpecialtyClient,
     setSearchClient,
     setIndexClient: setGatewayIndexClient,
+    setShardClient: setGatewayShardClient,
 } = require('../gateway/app');
 const { SpecialtyClient } = require('../gateway/specialtyClient');
 const { SearchClient } = require('../gateway/searchClient');
 const { IndexClient: GatewayIndexClient } = require('../gateway/indexClient');
+const { ShardClient: GatewayShardClient } = require('../gateway/shardClient');
 
 const { createApp: createIndexApp } = require('../index-node/app');
 const { SchemaClient: IndexSchemaClient } = require('../index-node/schemaClient');
@@ -96,6 +98,7 @@ beforeAll(async () => {
         tags: tagsSrv.url,
     }));
     setGatewayIndexClient(new GatewayIndexClient(indexSrv.url));
+    setGatewayShardClient(new GatewayShardClient(shardSrv.url));
 });
 
 afterAll(() => {
@@ -110,6 +113,7 @@ const SAMPLE_DOCS = [
 ];
 
 async function indexAllNodes(domain, docs) {
+    await axios.put(`${shardSrv.url}/docs`, { domain, documents: docs });
     await Promise.all([textSrv, metaSrv, tagsSrv].map(s =>
         axios.post(`${s.url}/index`, { domain, documents: docs })
     ));
@@ -133,6 +137,19 @@ describe('end-to-end: schema registry + specialty + 3 search nodes + gateway', (
         const ids = res.body.results.map(r => r.id);
         expect(ids).toEqual(expect.arrayContaining(['d1', 'd3']));
         expect(res.body.routing.map(n => n.name).sort()).toEqual(['tags', 'text']);
+    });
+
+    test('Gateway hydrates full doc fields from Shard Cluster (title, price, etc.)', async () => {
+        const res = await request(gatewayApp).post('/api/search').send({
+            domain: 'ecommerce', query: 'red shoes',
+        });
+
+        expect(res.status).toBe(200);
+        const d1 = res.body.results.find(r => r.id === 'd1');
+        expect(d1).toBeDefined();
+        expect(d1.title).toBe('red shoes');
+        expect(d1.price).toBe(250);
+        expect(typeof d1.score).toBe('number');
     });
 
     test('query "price<500" routes to metadata only, returns d1+d3', async () => {
@@ -218,5 +235,62 @@ describe('end-to-end STORE path: Gateway -> Index Node -> 3 Search Nodes', () =>
     test('Gateway /api/index returns 400 when documents missing', async () => {
         const res = await request(gatewayApp).post('/api/index').send({ domain: 'recipes' });
         expect(res.status).toBe(400);
+    });
+});
+
+describe('end-to-end: domain-agnostic — third domain (movies) goes through new hydration path', () => {
+    test('register schema, index, search, get hydrated results', async () => {
+        await request(schemaApp).post('/schema/movies').send({
+            text: ['title', 'plot'],
+            metadata: ['rating', 'year', 'runtime'],
+            tags: ['genre', 'director'],
+        });
+
+        const movies = [
+            { id: 'm1', title: 'Inception',       plot: 'dreams within dreams',     rating: 8.8, year: 2010, runtime: 148, genre: ['scifi'],  director: ['nolan']    },
+            { id: 'm2', title: 'The Godfather',   plot: 'mafia family saga',         rating: 9.2, year: 1972, runtime: 175, genre: ['crime'],  director: ['coppola']  },
+            { id: 'm3', title: 'Interstellar',    plot: 'space and time travel',     rating: 8.6, year: 2014, runtime: 169, genre: ['scifi'],  director: ['nolan']    },
+        ];
+
+        const indexRes = await request(gatewayApp).post('/api/index').send({
+            domain: 'movies', documents: movies,
+        });
+        expect(indexRes.status).toBe(200);
+        expect(indexRes.body.received).toBe(3);
+        expect(indexRes.body.shardCluster).toMatchObject({ ok: true, stored: 3 });
+        expect(indexRes.body.searchNodes.every(s => s.ok)).toBe(true);
+
+        const textRes = await request(gatewayApp).post('/api/search').send({
+            domain: 'movies', query: 'dreams',
+        });
+        const m1 = textRes.body.results.find(r => r.id === 'm1');
+        expect(m1).toBeDefined();
+        expect(m1.title).toBe('Inception');
+        expect(m1.year).toBe(2010);
+
+        const metaRes = await request(gatewayApp).post('/api/search').send({
+            domain: 'movies', query: 'year>2000',
+        });
+        expect(metaRes.body.routing.map(n => n.name)).toEqual(['metadata']);
+        const newer = metaRes.body.results.map(r => r.id).sort();
+        expect(newer).toEqual(['m1', 'm3']);
+
+        const tagRes = await request(gatewayApp).post('/api/search').send({
+            domain: 'movies', query: 'director:nolan',
+        });
+        expect(tagRes.body.routing.map(n => n.name)).toEqual(['tags']);
+        const byNolan = tagRes.body.results.map(r => r.id).sort();
+        expect(byNolan).toEqual(['m1', 'm3']);
+        const nolanFirst = tagRes.body.results[0];
+        expect(nolanFirst.director).toEqual(['nolan']);
+
+        const compoundRes = await request(gatewayApp).post('/api/search').send({
+            domain: 'movies', query: 'space genre:scifi year over 2010',
+        });
+        const routed = compoundRes.body.routing.map(n => n.name).sort();
+        expect(routed).toEqual(expect.arrayContaining(['metadata', 'tags', 'text']));
+        const top = compoundRes.body.results[0];
+        expect(top.id).toBe('m3');
+        expect(top.title).toBe('Interstellar');
     });
 });

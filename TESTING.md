@@ -23,13 +23,17 @@ Index Node (4001)
    │
    ├──► Schema Registry (5000): GET /schema/:domain  ──► reject if domain unknown
    │
+   ├──► Shard Cluster (7000): PUT /docs { domain, documents }
+   │    └── stores raw docs as source of truth; placed by hash(id) % shardCount
+   │        (if shard write fails, fan-out is skipped and 502 is returned)
+   │
    │  fan out same docs to all 3 in parallel:
    ├──► Text Node (3001)     POST /index
    ├──► Metadata Node (3002) POST /index
    └──► Tags Node (3003)     POST /index
 ```
 
-Each search node holds the same docs; the difference is which fields each one actually searches.
+Shard Cluster holds the **full raw doc** as the single source of truth. Each search node also stores the docs today (Phase 1 simplification), but its job is the index — not the canonical record.
 
 ### Search flow — when you query
 
@@ -44,16 +48,21 @@ Gateway (3000)
    │    └── decides which nodes to ask (with confidence 0.0–1.0 each)
    │
    │  Gateway then queries ONLY the nodes Specialty named, in parallel:
-   ├──► Text Node     POST /search
-   ├──► Metadata Node POST /search
-   └──► Tags Node     POST /search
+   ├──► Text Node     POST /search    →  returns [{id, score}, ...]   (no full doc)
+   ├──► Metadata Node POST /search    →  returns [{id, score}, ...]
+   └──► Tags Node     POST /search    →  returns [{id, score}, ...]
    │
    ▼
 Gateway merges results (each doc's score weighted by the node's confidence)
    │
+   ├──► Shard Cluster (7000): POST /docs/batch-get { domain, ids: top-K }
+   │    └── late hydrate — fetch full docs for the final top-K ids only
+   │
    ▼
-Sorted result list returned to client
+Sorted result list with full doc fields returned to client
 ```
+
+**Why two hops to Shard Cluster?** Search Nodes return only `id` + `score` — small payloads even across many nodes. Merge & Rank then makes ONE batch call to Shard Cluster to hydrate the final top-K full docs. Tiny network cost, single source of truth.
 
 ---
 
@@ -65,13 +74,13 @@ Sorted result list returned to client
 docker compose up -d
 ```
 
-### 2.2 Confirm all 8 containers are running
+### 2.2 Confirm all 9 containers are running
 
 ```bash
 docker ps
 ```
 
-Expected — 8 containers, all `Up`:
+Expected — 9 containers, all `Up`:
 
 | Name | Port | Purpose |
 |---|---|---|
@@ -82,6 +91,7 @@ Expected — 8 containers, all `Up`:
 | `metadata-node` | 3002 | Operator + natural-language metadata search |
 | `tags-node` | 3003 | Tag/hashtag/`field:value` matching |
 | `index-node` | 4001 | Store-path fan-out |
+| `shard-cluster` | 7000 | Raw-doc source of truth (sharded by `hash(id)`); hydrates top-K on search |
 | `monitoring` | 8080 | (Optional UI) |
 
 ### 2.3 Health probes
@@ -91,12 +101,13 @@ curl http://localhost:3000/api/health      # gateway
 curl http://localhost:5000/health          # schema-registry
 curl http://localhost:6000/health          # specialty-node
 curl http://localhost:4001/health          # index-node
+curl http://localhost:7000/health          # shard-cluster
 curl http://localhost:3001/health          # text-node
 curl http://localhost:3002/health          # metadata-node
 curl http://localhost:3003/health          # tags-node
 ```
 
-Each should return `{ "status": "ok", ... }`.
+Each should return `{ "status": "ok", ... }`. Shard Cluster also reports `shardCount`.
 
 ---
 
@@ -159,6 +170,7 @@ curl -X POST http://localhost:3000/api/index \
   "domain": "bookstore",
   "received": 5,
   "nodeId": "index-node",
+  "shardCluster": { "ok": true, "stored": 5, "ids": ["b1","b2","b3","b4","b5"] },
   "searchNodes": [
     {"node":"text","ok":true,"indexed":5,"nodeId":"text-node"},
     {"node":"metadata","ok":true,"indexed":5,"nodeId":"metadata-node"},
@@ -167,7 +179,17 @@ curl -X POST http://localhost:3000/api/index \
 }
 ```
 
-**What this proves:** Gateway → Index Node → all 3 Search Nodes received the docs. Store flow complete.
+**What this proves:** Gateway → Index Node → Shard Cluster (raw doc store) → all 3 Search Nodes. The `shardCluster` block confirms the source-of-truth write succeeded. If Shard Cluster were down, you'd get `502` and the search nodes would NOT be touched.
+
+### Verify Shard Cluster directly
+
+```bash
+curl -X POST http://localhost:7000/docs/batch-get \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"bookstore","ids":["b1","b4"]}'
+```
+
+Returns the full raw docs by id — proves Shard Cluster holds the source of truth.
 
 ---
 
@@ -183,6 +205,30 @@ curl -X POST http://localhost:3000/api/search \
 
 **Expected:** `b2` (Clean Code) wins, because both words appear in title + summary.
 **Routing:** `text` only.
+
+**Hydrated response shape (new):** Each result now contains the full doc fields, hydrated by Gateway from Shard Cluster:
+
+```json
+{
+  "results": [
+    {
+      "id": "b2",
+      "title": "Clean Code",
+      "summary": "writing clean software",
+      "price": 35,
+      "year": 2008,
+      "rating": 5,
+      "genre": ["tech"],
+      "author": ["martin"],
+      "score": 12,
+      "sources": ["text"]
+    }
+  ],
+  "routing": [ { "name": "text", "confidence": 0.9 } ]
+}
+```
+
+Search Nodes themselves only return `{id, score}`. The full fields come from Shard Cluster after the merge.
 
 ### 5.2 Pure metadata — operator syntax
 
@@ -287,54 +333,152 @@ curl -X POST http://localhost:3000/api/search \
 
 ---
 
-## 7. Try your own domain (challenge)
+## 7. Try a second domain (movies) — prove domain-agnostic
 
-The system is domain-agnostic — try anything. Examples:
+The system has zero `if (domain === 'whatever')` branches. To prove it, register a totally different domain and repeat the flow.
+
+### 7.1 Register the movies schema
+
+```bash
+curl -X POST http://localhost:5000/schema/movies \
+  -H "Content-Type: application/json" \
+  -d '{"text":["title","plot"],"metadata":["rating","year","runtime"],"tags":["genre","director"]}'
+```
+
+### 7.2 Index 3 movies
+
+```bash
+curl -X POST http://localhost:3000/api/index \
+  -H "Content-Type: application/json" \
+  -d '{
+    "domain":"movies",
+    "documents":[
+      {"id":"m1","title":"Inception","plot":"dreams within dreams","rating":8.8,"year":2010,"runtime":148,"genre":["scifi"],"director":["nolan"]},
+      {"id":"m2","title":"The Godfather","plot":"mafia family saga","rating":9.2,"year":1972,"runtime":175,"genre":["crime"],"director":["coppola"]},
+      {"id":"m3","title":"Interstellar","plot":"space and time travel","rating":8.6,"year":2014,"runtime":169,"genre":["scifi"],"director":["nolan"]}
+    ]
+  }'
+```
+
+**Expected:** `shardCluster.stored: 3`, all 3 search nodes ack.
+
+### 7.3 Text query — "dreams"
+
+```bash
+curl -X POST http://localhost:3000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"movies","query":"dreams"}'
+```
+
+**Expected top:** `m1` (Inception). Result is hydrated — you should see `title: "Inception"`, `year: 2010`, etc.
+
+### 7.4 Metadata query — `year>2000`
+
+```bash
+curl -X POST http://localhost:3000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"movies","query":"year>2000"}'
+```
+
+**Expected:** `m1` + `m3`. Routing: `metadata` only.
+
+### 7.5 Tags query — `director:nolan`
+
+```bash
+curl -X POST http://localhost:3000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"movies","query":"director:nolan"}'
+```
+
+**Expected:** `m1` + `m3`. Routing: `tags` only.
+
+### 7.6 Compound — space sci-fi after 2010
+
+```bash
+curl -X POST http://localhost:3000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"movies","query":"space genre:scifi year over 2010"}'
+```
+
+**Expected top:** `m3` (Interstellar). Routing: all 3 nodes. Result is hydrated with `title`, `plot`, `year`, etc.
+
+### 7.7 Other domains to try
 
 | Domain | text fields | metadata fields | tags fields |
 |---|---|---|---|
 | `cars` | model, description | price, year, mileage | brand, fuel |
-| `recipes` | title, instructions | calories, prepTime | cuisine, diet |
-| `movies` | title, plot | rating, year, runtime | genre, director |
 | `jobs` | title, description | salary, postedAgo | location, level |
+| `recipes` | title, instructions | calories, prepTime | cuisine, diet |
 
-Repeat sections 3 → 4 → 5 with your fields. The system has zero `if (domain === 'whatever')` branches anywhere — every domain is equal.
+Repeat 7.1 → 7.6 with your fields. Every domain is treated the same.
 
 ---
 
-## 8. Peek into containers while testing
+## 8. Inspect on-disk state
+
+After indexing, the data directory looks like this:
+
+```
+data/
+├── schemas.json                  # Schema Registry: all registered domains
+├── search-text-node.json         # Text Node's local copy of docs (Phase 1)
+├── search-metadata-node.json     # Metadata Node's local copy of docs (Phase 1)
+├── search-tags-node.json         # Tags Node's local copy of docs (Phase 1)
+└── shards/
+    ├── shard-0.json              # Shard Cluster shard 0 (raw docs, by hash(id) % 4)
+    ├── shard-1.json
+    ├── shard-2.json
+    └── shard-3.json
+```
+
+`data/shards/shard-*.json` is the **source of truth**. Docs are spread by `hash(doc_id) % shardCount`. Open any shard file to see the raw JSON docs.
 
 ```bash
-docker logs gateway        # see routing decisions + fan-out timing
-docker logs specialty-node # see which nodes were chosen and why
-docker logs index-node     # see store-path fan-out
-docker logs text-node      # see /index + /search calls the text node received
-docker logs metadata-node  # same for metadata
-docker logs tags-node      # same for tags
+# show how docs are distributed across shards
+for f in data/shards/shard-*.json; do
+  echo "=== $f ==="
+  cat "$f"
+done
+```
+
+---
+
+## 9. Peek into containers while testing
+
+```bash
+docker logs gateway        # routing decisions, fan-out timing, Shard Cluster hydrate calls
+docker logs specialty-node # which nodes were chosen and why
+docker logs index-node     # store-path fan-out + Shard Cluster write
+docker logs shard-cluster  # PUT /docs + POST /docs/batch-get
+docker logs text-node      # /index + /search calls the text node received
+docker logs metadata-node
+docker logs tags-node
 docker logs schema-registry
 ```
 
 ---
 
-## 9. Known design notes
+## 10. Known design notes
 
-### 9.1 Each Search Node stores the full document
+### 10.1 Shard Cluster is the source of truth (NEW in this milestone)
 
-When you inspect `data/*.json`, you will notice **every search node holds the whole doc**, not just its slice of fields. Metadata Node's file has `title` and `summary` even though it never searches them.
+Raw docs now live in `data/shards/shard-*.json`. Search Nodes return only `{id, score}`; Gateway hydrates the final top-K from Shard Cluster. This separates **what is searched** (search nodes' indexes) from **what is stored** (raw docs).
 
-**This is intentional, not a bug.** Each search node currently doubles as storage. In **Phase 2**, a separate **Shard Cluster** will own the raw documents (the single source of truth), and each search node will keep only the data structure it actually needs (inverted index for text, B-tree for metadata, hash map for tags). Until then: results stay correct, storage stays simple, and the swap-point is clearly defined.
+### 10.2 Each Search Node still keeps its own copy of docs (Phase 1 carry-over)
 
-### 9.2 Database integration is deferred
+Search Nodes still receive full docs from Index Node and persist them locally — they just don't return them in `/search`. In **Phase 2**, each search node will keep only its slice (inverted index for text, B-tree for metadata, hash map for tags), and the raw-doc copies in `data/search-*-node.json` will go away.
 
-All persistence today is **in-memory `Map` + JSON file** behind a `FileStorage` interface. A real database (Postgres, RocksDB, etc.) will be slotted in after **Phase 2 algorithm work** completes (BM25 for text, Jaccard for tags, proper inverted indexes).
+### 10.3 Database integration is deferred
 
-### 9.3 Search is contains-match (Phase 2 will fix)
+All persistence today is **in-memory `Map` + JSON file**. A real database (Postgres, RocksDB, etc.) will be slotted in after **Phase 2 algorithm work** completes (BM25 for text, Jaccard for tags, proper inverted indexes).
+
+### 10.4 Search is contains-match (Phase 2 will fix)
 
 Every search currently scans every doc in the domain. Fine for a few hundred docs; not for production scale. Phase 2 replaces this with proper index data structures.
 
 ---
 
-## 10. Shutting down
+## 11. Shutting down
 
 ```bash
 docker compose down              # stop and remove containers (data volume kept)
