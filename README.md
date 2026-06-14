@@ -1,5 +1,9 @@
 # Distributed Search Engine
 
+![Node.js](https://img.shields.io/badge/node.js-339933?logo=node.js&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-2496ED?logo=docker&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-236%20passing-brightgreen)
+
 A **domain-agnostic, distributed search engine** packaged as an SDK that any application can install. Built in Node.js, runs on Docker, and fixes long-standing gaps in existing engines (Elasticsearch, OpenSearch, Meilisearch).
 
 > Research project. The architecture is described in detail in [ARCHITECTURE.md](ARCHITECTURE.md). The semester research artifacts (theory + head-to-head benchmarks) live on the [`research-benchmarks`](https://github.com/FahhaMohamed/distributed-search-engine/tree/research-benchmarks) branch.
