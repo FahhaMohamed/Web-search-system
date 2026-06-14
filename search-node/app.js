@@ -3,12 +3,14 @@ const path = require('path');
 const { DocStore } = require('./docStore');
 const { FileStorage } = require('./storage');
 const { SchemaClient } = require('./schemaClient');
+const { TextIndex } = require('./textIndex');
 const { textSearch } = require('./textSearch');
 const { metadataSearch } = require('./metadataSearch');
 const { tagsSearch } = require('./tagsSearch');
 
+const TEXT_ALGORITHM = process.env.TEXT_ALGORITHM || 'inverted';
+
 const SPECIALTIES = {
-    text:     { run: textSearch,     schemaKey: 'text' },
     metadata: { run: metadataSearch, schemaKey: 'metadata' },
     tags:     { run: tagsSearch,     schemaKey: 'tags' },
 };
@@ -21,7 +23,13 @@ function applyFilters(doc, filters) {
 }
 
 function createApp({ specialty, nodeId, schemaClient, docStore }) {
-    const state = { specialty, nodeId, schemaClient, docStore };
+    const state = {
+        specialty,
+        nodeId,
+        schemaClient,
+        docStore,
+        textIndices: new Map(),
+    };
     const app = express();
     app.use(express.json());
 
@@ -29,7 +37,7 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
         res.json({ status: 'ok', service: 'search-node', specialty: state.specialty, nodeId: state.nodeId });
     });
 
-    app.post('/index', (req, res) => {
+    app.post('/index', async (req, res) => {
         const { documents, domain } = req.body || {};
         if (!domain) return res.status(400).json({ error: 'domain is required' });
         if (!Array.isArray(documents)) return res.status(400).json({ error: 'documents array is required' });
@@ -38,6 +46,23 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
         for (const doc of documents) {
             ids.push(state.docStore.put(domain, doc));
         }
+        state.docStore.flush();
+
+        if (state.specialty === 'text' && TEXT_ALGORITHM === 'inverted') {
+            const schema = await state.schemaClient.fetch(domain);
+            const fields = schema && Array.isArray(schema.text) ? schema.text : [];
+            if (fields.length > 0) {
+                let idx = state.textIndices.get(domain);
+                if (!idx) {
+                    idx = new TextIndex();
+                    state.textIndices.set(domain, idx);
+                }
+                for (let i = 0; i < documents.length; i++) {
+                    idx.add({ ...documents[i], id: ids[i] }, fields);
+                }
+            }
+        }
+
         res.json({ domain, indexed: ids.length, ids, specialty: state.specialty, nodeId: state.nodeId });
     });
 
@@ -48,6 +73,41 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
 
         const schema = await state.schemaClient.fetch(domain);
         if (!schema) return res.status(404).json({ error: `Domain not found: ${domain}` });
+
+        if (state.specialty === 'text' && TEXT_ALGORITHM === 'inverted') {
+            const fields = Array.isArray(schema.text) ? schema.text : [];
+            if (fields.length === 0) {
+                return res.json({ domain, query, specialty: state.specialty, results: [] });
+            }
+            let idx = state.textIndices.get(domain);
+            if (!idx) {
+                idx = new TextIndex();
+                state.textIndices.set(domain, idx);
+                for (const d of state.docStore.list(domain)) idx.add(d, fields);
+            }
+            const hits = idx.search(query, fields);
+            const results = [];
+            for (const h of hits) {
+                const doc = state.docStore.get(domain, h.id);
+                if (!doc) continue;
+                if (!applyFilters(doc, filters)) continue;
+                results.push({ id: h.id, score: h.score });
+            }
+            return res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
+        }
+
+        if (state.specialty === 'text') {
+            const fields = Array.isArray(schema.text) ? schema.text : [];
+            if (fields.length === 0) {
+                return res.json({ domain, query, specialty: state.specialty, results: [] });
+            }
+            const docs = state.docStore.list(domain);
+            const results = textSearch(query, docs, fields)
+                .map(r => applyFilters(r, filters))
+                .filter(Boolean)
+                .map(r => ({ id: r.id, score: r.score }));
+            return res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
+        }
 
         const handler = SPECIALTIES[state.specialty];
         if (!handler) return res.status(500).json({ error: `Unknown specialty: ${state.specialty}` });
@@ -90,9 +150,9 @@ const defaultApp = createApp({
     docStore: makeDefaultStore(NODE_ID),
 });
 
-function setSpecialty(s)     { defaultApp._state.specialty = s; }
-function setSchemaClient(c)  { defaultApp._state.schemaClient = c; }
-function setDocStore(s)      { defaultApp._state.docStore = s; }
+function setSpecialty(s)     { defaultApp._state.specialty = s; defaultApp._state.textIndices.clear(); }
+function setSchemaClient(c)  { defaultApp._state.schemaClient = c; defaultApp._state.textIndices.clear(); }
+function setDocStore(s)      { defaultApp._state.docStore = s; defaultApp._state.textIndices.clear(); }
 
 const PORT = process.env.PORT || 3001;
 

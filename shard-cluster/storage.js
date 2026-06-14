@@ -16,6 +16,7 @@ class ShardStore {
         this.shardCount = shardCount;
         this.baseDir = baseDir;
         this.shards = Array.from({ length: shardCount }, () => new Map());
+        this._dirtyShards = new Set();
     }
 
     shardFor(id) {
@@ -33,8 +34,13 @@ class ShardStore {
         const idx = this.shardFor(doc.id);
         const bucket = this._bucket(idx, domain);
         bucket.set(doc.id, { ...doc });
-        this._flushShard(idx);
+        this._dirtyShards.add(idx);
         return doc.id;
+    }
+
+    flush() {
+        for (const idx of this._dirtyShards) this._flushShard(idx);
+        this._dirtyShards.clear();
     }
 
     batchGet(domain, ids) {

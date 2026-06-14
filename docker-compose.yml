@@ -61,6 +61,7 @@ services:
       - NODE_SPECIALTY=text
       - PORT=3001
       - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - TEXT_ALGORITHM=${TEXT_ALGORITHM:-inverted}
     networks:
       - search-network
     volumes:

@@ -17,7 +17,6 @@ class DocStore {
             this.byDomain.set(domain, new Map());
         }
         this.byDomain.get(domain).set(id, stored);
-        if (this.persistence) this.flush();
         return id;
     }
 
