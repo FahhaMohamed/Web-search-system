@@ -25,6 +25,7 @@ function createApp({ nodeId, store }) {
         for (const doc of documents) {
             ids.push(state.store.put(domain, doc));
         }
+        state.store.flush();
         res.json({ domain, stored: ids.length, ids, nodeId: state.nodeId });
     });
 

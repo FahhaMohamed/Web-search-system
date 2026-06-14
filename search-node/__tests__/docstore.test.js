@@ -89,10 +89,23 @@ describe('DocStore — persistence (file-backed)', () => {
         expect(store.list('ecommerce').map(d => d.id)).toEqual(['a', 'b']);
     });
 
-    test('put auto-flushes when persistence is configured', () => {
+    test('put does NOT auto-flush — caller must call flush() explicitly', () => {
         const persistence = makeFakePersistence();
         const store = new DocStore(persistence);
         store.put('ecommerce', { id: 'a' });
-        expect(persistence.inspect().ecommerce).toEqual([{ id: 'a' }]);
+        store.put('ecommerce', { id: 'b' });
+        expect(persistence.inspect()).toBeNull();
+    });
+
+    test('one flush after many puts writes only once (avoids O(n^2) writes)', () => {
+        let writeCount = 0;
+        const persistence = {
+            read: () => ({}),
+            write: () => { writeCount += 1; },
+        };
+        const store = new DocStore(persistence);
+        for (let i = 0; i < 50; i++) store.put('ecommerce', { id: `d-${i}` });
+        store.flush();
+        expect(writeCount).toBe(1);
     });
 });

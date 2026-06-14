@@ -58,11 +58,12 @@ describe('ShardStore', () => {
         expect(fromRecipes).toEqual([{ id: 'x1', title: 'Pasta' }]);
     });
 
-    test('load() restores docs from disk after restart', () => {
+    test('load() restores docs from disk after explicit flush()', () => {
         const dir = tmpDir();
         const first = new ShardStore({ shardCount: 4, baseDir: dir });
         first.put('bookstore', { id: 'b1', title: 'Dune', price: 15 });
         first.put('bookstore', { id: 'b2', title: 'Foundation', price: 12 });
+        first.flush();
 
         const second = new ShardStore({ shardCount: 4, baseDir: dir });
         second.load();
@@ -72,5 +73,26 @@ describe('ShardStore', () => {
             { id: 'b1', title: 'Dune', price: 15 },
             { id: 'b2', title: 'Foundation', price: 12 },
         ]);
+    });
+
+    test('put does NOT write to disk — caller must call flush()', () => {
+        const dir = tmpDir();
+        const store = new ShardStore({ shardCount: 4, baseDir: dir });
+        store.put('bookstore', { id: 'b1', title: 'Dune' });
+        store.put('bookstore', { id: 'b2', title: 'Foundation' });
+        const filesAfterPuts = fs.existsSync(dir) ? fs.readdirSync(dir) : [];
+        expect(filesAfterPuts).toEqual([]);
+    });
+
+    test('one flush after many puts writes each touched shard only once', () => {
+        const dir = tmpDir();
+        const store = new ShardStore({ shardCount: 4, baseDir: dir });
+        for (let i = 0; i < 50; i++) {
+            store.put('bookstore', { id: `b-${i}`, title: `T${i}` });
+        }
+        store.flush();
+        const files = fs.readdirSync(dir).filter(f => f.startsWith('shard-')).sort();
+        expect(files.length).toBeGreaterThan(0);
+        expect(files.length).toBeLessThanOrEqual(4);
     });
 });
