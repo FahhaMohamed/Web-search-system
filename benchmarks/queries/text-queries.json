@@ -1,0 +1,26 @@
+{
+    "description": "20 single-word text queries used for the head-to-head benchmark. Single-word is the lowest common denominator both architectures can answer (old namenode branch only supports GET /search?q=word). All words are drawn from the synthetic dataset's controlled vocabulary so they exist at every dataset size when seed=42.",
+    "domain": "products",
+    "queries": [
+        "wireless",
+        "classic",
+        "modern",
+        "smart",
+        "durable",
+        "portable",
+        "silent",
+        "fast",
+        "rugged",
+        "compact",
+        "quality",
+        "professional",
+        "travel",
+        "office",
+        "outdoor",
+        "headphones",
+        "monitor",
+        "keyboard",
+        "camera",
+        "lamp"
+    ]
+}
