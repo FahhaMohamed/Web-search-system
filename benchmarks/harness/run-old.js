@@ -1,18 +1,19 @@
 /**
- * Benchmark harness for the namenode (previous) architecture.
+ * Benchmark harness for the Previous Architecture (namenode).
  *
- * The old architecture serves a pre-built static index. Data loading happens
- * offline (cleaner -> map -> reduce builds /dfs/index.json before search-api
- * comes up). This harness only fires queries and records latency -- the data
- * loading is handled by the experiment runner in Step 7.
- *
- * Endpoint: GET /search?q=<word>
+ * Endpoint: GET /search?q=<text>
  * Response: { status, message, results: [splitFile, ...] }
  *
- * Returns rows: { query, repetition, latencyMs, resultCount, status }
+ * Queries may be strings (treated as single-token) or { text, type } objects.
+ * Returns rows: { query, queryType, repetition, latencyMs, resultCount, status }
  */
 
 const axios = require('axios');
+
+function normalizeQuery(q) {
+    if (typeof q === 'string') return { text: q, type: 'single' };
+    return { text: q.text, type: q.type || 'single' };
+}
 
 async function runBenchmarkOld({
     searchApiUrl,
@@ -21,23 +22,31 @@ async function runBenchmarkOld({
     onProgress = () => {},
 }) {
     const rows = [];
-    for (const query of queries) {
+    for (const raw of queries) {
+        const q = normalizeQuery(raw);
         for (let rep = 1; rep <= repetitions; rep++) {
             let status = 'ok';
             let resultCount = 0;
             const start = process.hrtime.bigint();
             try {
-                const res = await axios.get(`${searchApiUrl}/search`, { params: { q: query } });
+                const res = await axios.get(`${searchApiUrl}/search`, { params: { q: q.text } });
                 resultCount = Array.isArray(res.data.results) ? res.data.results.length : 0;
             } catch (_) {
                 status = 'error';
             }
             const latencyMs = Number(process.hrtime.bigint() - start) / 1_000_000;
-            rows.push({ query, repetition: rep, latencyMs, resultCount, status });
-            onProgress({ phase: 'query', query, repetition: rep });
+            rows.push({
+                query: q.text,
+                queryType: q.type,
+                repetition: rep,
+                latencyMs,
+                resultCount,
+                status,
+            });
+            onProgress({ phase: 'query', query: q.text, queryType: q.type, repetition: rep });
         }
     }
     return rows;
 }
 
-module.exports = { runBenchmarkOld };
+module.exports = { runBenchmarkOld, normalizeQuery };

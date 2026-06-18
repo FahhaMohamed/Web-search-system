@@ -14,6 +14,7 @@ function percentile(sortedAsc, p) {
     return sortedAsc[idx];
 }
 
+//findout the throughput
 function computeStats(latencies, totalElapsedMs) {
     if (!latencies || latencies.length === 0) {
         return { count: 0, min: 0, max: 0, avg: 0, p50: 0, p95: 0, p99: 0, throughput: 0 };

@@ -104,10 +104,10 @@ async function waitForHealthy(url, label, retries = 90, intervalMs = 2000) {
 }
 
 function rowsToLatencyCsv(rows, size) {
-    const header = 'size,query,repetition,latency_ms,result_count,status';
+    const header = 'size,query,query_type,repetition,latency_ms,result_count,status';
     const lines = rows.map(
         (r) =>
-            `${size},${r.query},${r.repetition},${r.latencyMs.toFixed(3)},${r.resultCount},${r.status}`,
+            `${size},"${r.query}",${r.queryType || 'single'},${r.repetition},${r.latencyMs.toFixed(3)},${r.resultCount},${r.status}`,
     );
     return [header, ...lines].join('\n') + '\n';
 }

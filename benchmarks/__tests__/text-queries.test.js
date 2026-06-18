@@ -1,50 +1,43 @@
 const queriesFile = require('../queries/text-queries.json');
-const { generateDataset } = require('../generate-dataset');
 
-const SEED = 42;
-const SIZES = [100, 1000, 10000, 100000];
-
-function docContainsWord(doc, word) {
-    const w = word.toLowerCase();
-    return (
-        doc.title.toLowerCase().split(/\s+/).includes(w) ||
-        doc.description.toLowerCase().split(/\s+/).includes(w)
-    );
-}
-
-describe('text-queries.json', () => {
-    test('contains exactly 20 queries', () => {
-        expect(queriesFile.queries).toHaveLength(20);
+describe('text-queries.json (external Open Library dataset)', () => {
+    test('contains exactly 40 queries (20 single + 20 multi)', () => {
+        expect(queriesFile.queries).toHaveLength(40);
+        const single = queriesFile.queries.filter((q) => q.type === 'single');
+        const multi = queriesFile.queries.filter((q) => q.type === 'multi');
+        expect(single).toHaveLength(20);
+        expect(multi).toHaveLength(20);
     });
 
-    test('every query is a single lowercase word', () => {
+    test('every query has shape { text, type }', () => {
         for (const q of queriesFile.queries) {
-            expect(q).toMatch(/^[a-z]+$/);
+            expect(typeof q.text).toBe('string');
+            expect(['single', 'multi']).toContain(q.type);
         }
     });
 
-    test('queries are unique', () => {
-        const set = new Set(queriesFile.queries);
-        expect(set.size).toBe(queriesFile.queries.length);
-    });
-
-    test.each(SIZES)('every query word appears in at least one doc at size=%i', (size) => {
-        const { docs } = generateDataset({ size, seed: SEED });
-        for (const q of queriesFile.queries) {
-            const hit = docs.find(d => docContainsWord(d, q));
-            expect(hit).toBeDefined();
+    test('single-token queries are exactly one lowercase word', () => {
+        for (const q of queriesFile.queries.filter((q) => q.type === 'single')) {
+            expect(q.text).toMatch(/^[a-z]+$/);
         }
     });
 
-    test('query selectivity is varied (not all queries hit every doc)', () => {
-        const { docs } = generateDataset({ size: 1000, seed: SEED });
-        const hitRates = queriesFile.queries.map(q => {
-            const hits = docs.filter(d => docContainsWord(d, q)).length;
-            return hits / docs.length;
-        });
-        const min = Math.min(...hitRates);
-        const max = Math.max(...hitRates);
-        expect(min).toBeGreaterThan(0);
-        expect(max).toBeLessThan(1);
+    test('multi-token queries are 2+ lowercase words', () => {
+        for (const q of queriesFile.queries.filter((q) => q.type === 'multi')) {
+            const tokens = q.text.split(/\s+/);
+            expect(tokens.length).toBeGreaterThanOrEqual(2);
+            for (const tok of tokens) {
+                expect(tok).toMatch(/^[a-z]+$/);
+            }
+        }
+    });
+
+    test('all query texts are unique', () => {
+        const texts = queriesFile.queries.map((q) => q.text);
+        expect(new Set(texts).size).toBe(texts.length);
+    });
+
+    test('domain matches the external dataset', () => {
+        expect(queriesFile.domain).toBe('books');
     });
 });

@@ -196,4 +196,40 @@ describe('runBenchmark (new architecture)', () => {
         });
         expect(events.length).toBeGreaterThan(0);
     });
+
+    test('accepts queries as {text, type} objects and records queryType per row', async () => {
+        const { rows } = await runBenchmark({
+            schemaRegistryUrl: schemaSrv.url,
+            gatewayUrl: gatewaySrv.url,
+            domain: 'products',
+            schema: SCHEMA,
+            documents: [DOC],
+            queries: [
+                { text: 'love', type: 'single' },
+                { text: 'great american novel', type: 'multi' },
+            ],
+            repetitions: 2,
+        });
+        expect(rows).toHaveLength(4);
+        const single = rows.filter((r) => r.queryType === 'single');
+        const multi = rows.filter((r) => r.queryType === 'multi');
+        expect(single).toHaveLength(2);
+        expect(multi).toHaveLength(2);
+        for (const r of single) expect(r.query).toBe('love');
+        for (const r of multi) expect(r.query).toBe('great american novel');
+    });
+
+    test('sends the full multi-token query text to the gateway', async () => {
+        await runBenchmark({
+            schemaRegistryUrl: schemaSrv.url,
+            gatewayUrl: gatewaySrv.url,
+            domain: 'products',
+            schema: SCHEMA,
+            documents: [DOC],
+            queries: [{ text: 'great american novel', type: 'multi' }],
+            repetitions: 1,
+        });
+        const searchCalls = gatewaySrv.calls.filter((c) => c.path === '/api/search');
+        expect(searchCalls[0].body.query).toBe('great american novel');
+    });
 });
