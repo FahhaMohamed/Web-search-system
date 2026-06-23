@@ -30,6 +30,7 @@ function validateSchema(schema) {
     if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
         return 'Schema must be a JSON object';
     }
+    //Domain-specific schema should include at least one of the following sections.
     const sections = ['text', 'metadata', 'tags'];
     const presentSections = sections.filter(s => s in schema);
     if (presentSections.length === 0) {
@@ -56,6 +57,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'schema-registry' });
 });
 
+//Registering a new schema for a domain
 app.post('/schema/:domain', (req, res) => {
     const { domain } = req.params;
     const schema = req.body;

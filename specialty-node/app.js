@@ -55,6 +55,7 @@ function parseQuery(query, schema) {
         const lower = token.toLowerCase();
 
         const opMatch = token.match(OPERATOR_TOKEN_RE);
+        // Check for operator tokens like "price>100" or "rating<=4.5"
         if (opMatch) {
             const fieldName = opMatch[1];
             const section = fieldSection(fieldName, schema);
@@ -124,7 +125,8 @@ app.post('/route', async (req, res) => {
     if (!query) {
         return res.status(400).json({ error: 'query is required' });
     }
-
+    
+    //decide which Search Nodes to call
     const schema = await schemaClient.fetch(domain);
     if (!schema) {
         return res.status(404).json({ error: `Domain not found: ${domain}` });

@@ -51,7 +51,8 @@ app.post('/api/search', async (req, res) => {
     const { domain, query, filters = {}, limit = 20, minConfidence = 0 } = req.body || {};
     if (!query) return res.status(400).json({ error: 'query is required' });
     if (!domain) return res.status(400).json({ error: 'domain is required' });
-
+    
+    //Query Splitter which decides which Search Nodes to call based on the query and domain schema
     let routing;
     try {
         routing = await specialtyClient.route(domain, query);
@@ -59,7 +60,8 @@ app.post('/api/search', async (req, res) => {
         const status = err.status || 500;
         return res.status(status).json({ error: err.message });
     }
-
+    
+    //If Specialty Node fails, we can have a fallback to call all Search Nodes or a default set of nodes.
     const nodes = (routing.nodes || []).filter(n => (n.confidence || 0) >= minConfidence);
     const nodeResponses = await Promise.all(nodes.map(async (n) => {
         const out = await searchClient.search(n.name, { domain, query, filters });
