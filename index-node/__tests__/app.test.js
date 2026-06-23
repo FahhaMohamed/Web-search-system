@@ -9,7 +9,7 @@ const SCHEMAS = {
 function makeApp(stubs = {}) {
     const schemaClient = stubs.schemaClient || { fetch: async (d) => SCHEMAS[d] || null };
     const indexClient = stubs.indexClient || {
-        fanOut: async (domain, docs) => [
+        fanOut: async (_domain, docs, _schema) => [
             { node: 'text', ok: true, indexed: docs.length },
             { node: 'metadata', ok: true, indexed: docs.length },
             { node: 'tags', ok: true, indexed: docs.length },
@@ -68,12 +68,12 @@ describe('index-node app — /index schema check', () => {
 });
 
 describe('index-node app — /index fan-out', () => {
-    test('calls indexClient.fanOut with domain and docs', async () => {
+    test('calls indexClient.fanOut with domain, docs, and schema', async () => {
         let captured;
         const app = makeApp({
             indexClient: {
-                fanOut: async (domain, docs) => {
-                    captured = { domain, docs };
+                fanOut: async (domain, docs, schema) => {
+                    captured = { domain, docs, schema };
                     return [{ node: 'text', ok: true, indexed: docs.length }];
                 },
             },
@@ -83,7 +83,7 @@ describe('index-node app — /index fan-out', () => {
         const res = await request(app).post('/index').send({ domain: 'ecommerce', documents: docs });
 
         expect(res.status).toBe(200);
-        expect(captured).toEqual({ domain: 'ecommerce', docs });
+        expect(captured).toEqual({ domain: 'ecommerce', docs, schema: SCHEMAS.ecommerce });
     });
 
     test('response aggregates per-node results and total', async () => {

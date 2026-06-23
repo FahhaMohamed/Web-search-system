@@ -26,7 +26,7 @@ function createApp({ nodeId, schemaClient, indexClient, shardClient }) {
             return res.status(502).json({ error: `Shard Cluster write failed: ${shardAck.error}` });
         }
 
-        const searchNodes = await state.indexClient.fanOut(domain, documents);
+        const searchNodes = await state.indexClient.fanOut(domain, documents, schema);
 
         res.json({
             domain,
