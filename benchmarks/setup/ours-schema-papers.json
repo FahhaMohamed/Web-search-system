@@ -1,0 +1,5 @@
+{
+  "text":     ["title", "summary"],
+  "metadata": ["published_year"],
+  "tags":     ["categories", "authors"]
+}

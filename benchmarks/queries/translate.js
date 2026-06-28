@@ -137,9 +137,53 @@ function toMeili(canonical, domain) {
     throw new Error(`unknown query kind: ${canonical.kind}`);
 }
 
+/**
+ * Normalize a tag-style value for our system. Our Specialty Node tokenizes
+ * the query string on whitespace before parsing `field:value` pairs, so
+ * multi-word tag values like "living people" can't survive raw. We replace
+ * spaces with hyphens. This is paired with the same transform applied to
+ * tag-field DATA at index time (see prepareDocs in the orchestrator), so
+ * the canonical INTENT still matches the same docs across all engines.
+ */
+function oursTagSlug(v) {
+    return String(v).trim().toLowerCase().replace(/\s+/g, '-');
+}
+
+function toOurs(canonical, domain) {
+    if (!canonical || typeof canonical !== 'object') {
+        throw new Error('canonical query is required');
+    }
+    getSchema(domain); // validates domain
+
+    if (canonical.kind === 'text') {
+        if (!canonical.tokens) throw new Error('text query: tokens is required');
+        return { domain, query: String(canonical.tokens) };
+    }
+
+    if (canonical.kind === 'range') {
+        if (!canonical.field) throw new Error('range query: field is required');
+        if (canonical.value === undefined) throw new Error('range query: value is required');
+        const op = canonical.op;
+        return { domain, query: `${canonical.field}${op}${canonical.value}` };
+    }
+
+    if (canonical.kind === 'term') {
+        if (!canonical.field) throw new Error('term query: field is required');
+        if (canonical.value === undefined) throw new Error('term query: value is required');
+        return {
+            domain,
+            query: `${canonical.field}:${oursTagSlug(canonical.value)}`,
+        };
+    }
+
+    throw new Error(`unknown query kind: ${canonical.kind}`);
+}
+
 module.exports = {
     DOMAIN_SCHEMAS,
     getSchema,
     toElastic,
     toMeili,
+    toOurs,
+    oursTagSlug,
 };

@@ -1,0 +1,5 @@
+{
+  "text":     ["title", "extract"],
+  "metadata": ["length", "last_modified"],
+  "tags":     ["categories"]
+}

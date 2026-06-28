@@ -1,0 +1,5 @@
+{
+  "text":     ["product_name", "ingredients_text"],
+  "metadata": ["nutriscore_numeric", "energy_100g"],
+  "tags":     ["categories", "brands"]
+}

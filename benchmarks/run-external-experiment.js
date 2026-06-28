@@ -24,9 +24,11 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { execSync } = require('child_process');
 
 const elasticRunner = require('./harness/run-elastic');
 const meiliRunner = require('./harness/run-meili');
+const oursRunner = require('./harness/run-ours');
 const loadWikipedia = require('./loaders/load-wikipedia');
 const loadArxiv = require('./loaders/load-arxiv');
 const loadOFF = require('./loaders/load-openfoodfacts');
@@ -63,7 +65,49 @@ const ENGINES = {
         search: (args) => meiliRunner.runQueriesMeili(args),
         teardown: (args) => meiliRunner.teardownMeili(args),
     },
-    // ours added in Phase 3
+    ours: {
+        // Healthcheck through the Schema Registry — both must be up for
+        // setup+index to work, but the registry comes online last so
+        // it's the safer signal.
+        healthUrl: 'http://localhost:5000/health',
+        configFile: (domain) => path.join(SETUP, `ours-schema-${domain}.json`),
+        // Our system has no DELETE-by-index endpoint, so docs accumulate
+        // across cells. To match Elastic/Meili's per-cell isolation we do
+        // a docker compose down + wipe data/ + up from the worktree.
+        // Worktree path is set via OURS_WORKTREE env var, defaults to
+        // the sibling layout used in development.
+        prepareCell: async () => {
+            const wtPath = process.env.OURS_WORKTREE || path.resolve(BENCH, '..', '..', 'ours-worktree');
+            const dataDir = path.join(wtPath, 'data');
+            try {
+                execSync('docker compose down --remove-orphans', { cwd: wtPath, stdio: 'pipe' });
+            } catch (_e) { /* may already be down */ }
+            if (fs.existsSync(dataDir)) {
+                for (const f of fs.readdirSync(dataDir)) {
+                    try { fs.rmSync(path.join(dataDir, f), { recursive: true, force: true }); } catch (_e) {}
+                }
+            }
+            execSync('docker compose up -d', { cwd: wtPath, stdio: 'pipe' });
+        },
+        // Our Specialty Node tokenizes the query on whitespace, so multi-word
+        // tag values like "living people" need to be slugified. We slugify
+        // BOTH the indexed tag values AND the query values (in toOurs)
+        // so the same canonical intent still matches the same docs.
+        prepareDocs: (docs) => {
+            const slugify = (v) => String(v).trim().toLowerCase().replace(/\s+/g, '-');
+            for (const d of docs) {
+                for (const k of Object.keys(d)) {
+                    if (Array.isArray(d[k])) {
+                        d[k] = d[k].map((x) => (typeof x === 'string' ? slugify(x) : x));
+                    }
+                }
+            }
+        },
+        setup: (args) => oursRunner.setupOurs({ domain: args.domain, schema: args.config }),
+        index: (args) => oursRunner.indexOurs(args),
+        search: (args) => oursRunner.runQueriesOurs(args),
+        teardown: (args) => oursRunner.teardownOurs(args),
+    },
 };
 
 const LOADERS = {
@@ -195,6 +239,14 @@ async function runCell({ engine, domain, size, reps, teardown }) {
     if (!loaderCfg) throw new Error(`unknown domain: ${domain}`);
 
     console.log(`\n=== ${engine} × ${domain} × ${size} ===`);
+
+    // 0. Per-engine pre-cell hook (e.g., ours wipes data + restarts stack)
+    if (typeof engCfg.prepareCell === 'function') {
+        process.stdout.write(`  reset...`);
+        const t0 = Date.now();
+        await engCfg.prepareCell();
+        process.stdout.write(` ${((Date.now() - t0) / 1000).toFixed(1)}s\n`);
+    }
 
     // 1. Wait for engine health
     await waitForHealthy(engCfg.healthUrl, `${engine} at ${engCfg.healthUrl}`);
