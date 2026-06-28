@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "properties": {
+      "id":             { "type": "keyword" },
+      "title":          { "type": "text" },
+      "extract":        { "type": "text" },
+      "length":         { "type": "long" },
+      "last_modified":  { "type": "date" },
+      "categories":     { "type": "keyword" }
+    }
+  }
+}

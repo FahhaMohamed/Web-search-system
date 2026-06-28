@@ -1,0 +1,31 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: bench-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    networks:
+      - external-bench-network
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: bench-meilisearch
+    environment:
+      - MEILI_ENV=development
+      - MEILI_NO_ANALYTICS=true
+    ports:
+      - "7700:7700"
+    networks:
+      - external-bench-network
+
+networks:
+  external-bench-network:
+    driver: bridge

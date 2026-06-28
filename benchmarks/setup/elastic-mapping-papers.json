@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "properties": {
+      "id":             { "type": "keyword" },
+      "title":          { "type": "text" },
+      "summary":        { "type": "text" },
+      "published_year": { "type": "integer" },
+      "categories":     { "type": "keyword" },
+      "authors":        { "type": "keyword" }
+    }
+  }
+}
