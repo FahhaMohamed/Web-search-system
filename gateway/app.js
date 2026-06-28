@@ -6,7 +6,7 @@ const { IndexClient } = require('./indexClient');
 const { ShardClient } = require('./shardClient');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 const SPECIALTY_NODE_URL = process.env.SPECIALTY_NODE_URL || 'http://specialty-node:6000';
