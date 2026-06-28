@@ -205,8 +205,52 @@ benchmarks/
 - ✅ Smoke test passed: `elastic × articles × 100 × 3 reps` → 240 rows, 0 errors, **warm median 18.9 ms**
 - ✅ Step 1.M — 11/12 Elastic cells completed (`articles × 100000` deferred — Wikipedia cache only at 25k)
 - ✅ Step 1.N — analyzer written (`benchmarks/analyze-external.js`); markdown report at `benchmarks/results/elastic-phase1-report.md`
-- ⏳ Wikipedia cache still filling (slow, ~3 docs/sec, 25k/111k = 23%) — `articles × 100000` deferred to a follow-up run
-- ⏳ Next: CHECKPOINT with user, then Phase 2 (Meilisearch)
+- ✅ Phase 2 — Meilisearch harness wired into orchestrator
+- ✅ 11/12 Meili cells completed (same `articles × 100000` deferred)
+- 🟡 Wikipedia cache still filling (~70k/111k = 63%) — articles × 100000 deferred for both engines
+- ⏳ Next: CHECKPOINT for Phase 2 results, then Phase 3 (Ours)
+
+## Phase 2 results — Elasticsearch vs Meilisearch (head-to-head)
+
+### Search latency — side by side
+
+| domain | size | Elastic median | Elastic p90 | Elastic p99 | Meili median | Meili p90 | Meili p99 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| articles | 100 | 4.83 | 6.48 | 7.80 | 4.47 | 47.88 | 49.18 |
+| articles | 1000 | 3.92 | 5.64 | 7.12 | 4.27 | 6.23 | 47.31 |
+| articles | 10000 | 3.05 | 4.53 | 6.17 | 5.90 | 9.83 | 48.27 |
+| papers | 100 | 3.10 | 4.43 | 5.55 | 4.44 | 7.81 | 48.98 |
+| papers | 1000 | 2.52 | 3.69 | 4.95 | 4.63 | 6.14 | 47.77 |
+| papers | 10000 | 2.82 | 4.29 | 5.74 | 4.84 | 7.54 | 10.33 |
+| papers | 100000 | 2.76 | 5.18 | 6.22 | **2.37** | **3.32** | **4.28** |
+| products | 100 | 2.21 | 3.00 | 4.18 | 3.99 | 48.12 | 49.10 |
+| products | 1000 | 2.65 | 4.65 | 6.34 | 3.99 | 18.86 | 50.98 |
+| products | 10000 | 2.10 | 3.26 | 4.97 | 3.24 | 6.25 | 47.88 |
+| products | 100000 | 2.18 | 4.19 | 5.92 | **1.89** | 44.00 | 55.29 |
+
+### Indexing time — side by side
+
+| domain | size | Elastic indexing (s) | Meili indexing (s) | Meili/Elastic ratio |
+|---|---:|---:|---:|---:|
+| articles | 100 | 0.11 | 0.23 | 2.1× |
+| articles | 1000 | 0.42 | 1.69 | 4.0× |
+| articles | 10000 | 2.23 | 11.46 | 5.1× |
+| papers | 100 | 0.07 | 0.42 | 5.9× |
+| papers | 1000 | 0.37 | 3.31 | 8.9× |
+| papers | 10000 | 2.12 | 51.08 | **24.1×** |
+| papers | 100000 | 30.39 | 278.64 | 9.2× |
+| products | 100 | 0.07 | 0.45 | 6.3× |
+| products | 1000 | 0.12 | 0.65 | 5.6× |
+| products | 10000 | 1.09 | 3.37 | 3.1× |
+| products | 100000 | 10.00 | 96.69 | 9.7× |
+
+### Key findings
+
+1. **Median search latency is comparable** — both engines are in the 2–6 ms range across all cells.
+2. **Meili has wider tail latencies** — p99 frequently jumps to 47–55 ms (vs Elastic's 5–8 ms). Meili's search is more variable.
+3. **Meili indexing is consistently slower** — 2× at 100 docs, up to 24× at 10k papers.
+4. **At 100k scale, Meili search is competitive on median** (papers: 2.37 vs Elastic 2.76 ms; products: 1.89 vs 2.18 ms) — but tail latencies still favor Elastic.
+5. **Zero search errors across both engines** (15,840 total warmed queries).
 
 ## Headline Elastic numbers (11 cells, warm only, repetition > 1)
 
