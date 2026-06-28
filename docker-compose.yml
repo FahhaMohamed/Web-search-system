@@ -62,6 +62,8 @@ services:
       - PORT=3001
       - SCHEMA_REGISTRY_URL=http://schema-registry:5000
       - TEXT_ALGORITHM=${TEXT_ALGORITHM:-inverted}
+      - NODE_OPTIONS=--max-old-space-size=4096
+    restart: unless-stopped
     networks:
       - search-network
     volumes:
