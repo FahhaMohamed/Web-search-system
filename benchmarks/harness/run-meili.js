@@ -38,7 +38,7 @@ function sleep(ms) {
     return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForTask(taskUid, { meiliUrl = DEFAULT_MEILI_URL, timeoutMs = 600000 } = {}) {
+async function waitForTask(taskUid, { meiliUrl = DEFAULT_MEILI_URL, timeoutMs = 1800000 } = {}) {
     const start = Date.now();
     let delay = 50;
     while (Date.now() - start < timeoutMs) {
