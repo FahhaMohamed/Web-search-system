@@ -26,6 +26,7 @@ const path = require('path');
 const axios = require('axios');
 
 const elasticRunner = require('./harness/run-elastic');
+const meiliRunner = require('./harness/run-meili');
 const loadWikipedia = require('./loaders/load-wikipedia');
 const loadArxiv = require('./loaders/load-arxiv');
 const loadOFF = require('./loaders/load-openfoodfacts');
@@ -37,11 +38,32 @@ const QUERIES = path.join(BENCH, 'queries');
 
 const ENGINES = {
     elastic: {
-        runner: elasticRunner,
         healthUrl: 'http://localhost:9200',
-        mappingFile: (domain) => path.join(SETUP, `elastic-mapping-${domain}.json`),
+        configFile: (domain) => path.join(SETUP, `elastic-mapping-${domain}.json`),
+        setup: (args) => elasticRunner.setupElastic({ domain: args.domain, mapping: args.config }),
+        index: (args) => elasticRunner.indexElastic(args),
+        search: (args) => elasticRunner.runQueriesElastic(args),
+        teardown: (args) => elasticRunner.teardownElastic(args),
     },
-    // meili, ours added in later phases
+    meili: {
+        healthUrl: 'http://localhost:7700/health',
+        configFile: (domain) => path.join(SETUP, `meili-settings-${domain}.json`),
+        // Meili's primary-key character set is [a-zA-Z0-9_-]. arXiv IDs like
+        // `ax-2606.27377` are accepted by Elastic but rejected by Meili.
+        // We normalize on the way in so the same dataset is comparable.
+        prepareDocs: (docs) => {
+            for (const d of docs) {
+                if (typeof d.id === 'string' && d.id.indexOf('.') !== -1) {
+                    d.id = d.id.replace(/\./g, '_');
+                }
+            }
+        },
+        setup: (args) => meiliRunner.setupMeili({ domain: args.domain, settings: args.config }),
+        index: (args) => meiliRunner.indexMeili(args),
+        search: (args) => meiliRunner.runQueriesMeili(args),
+        teardown: (args) => meiliRunner.teardownMeili(args),
+    },
+    // ours added in Phase 3
 };
 
 const LOADERS = {
@@ -181,20 +203,23 @@ async function runCell({ engine, domain, size, reps, teardown }) {
     process.stdout.write(`  loading ${size} ${domain} docs from cache...`);
     const docs = await loaderCfg.module[loaderCfg.fn]({ size });
     sanitizeDocs(docs);
+    if (typeof engCfg.prepareDocs === 'function') {
+        engCfg.prepareDocs(docs);
+    }
     process.stdout.write(` OK (${docs.length} docs)\n`);
 
-    // 3. Load queries + mapping
+    // 3. Load queries + per-engine config (mapping for Elastic, settings for Meili, etc.)
     const queries = loadCanonicalQueries(domain);
-    const mapping = JSON.parse(fs.readFileSync(engCfg.mappingFile(domain), 'utf-8'));
+    const config = JSON.parse(fs.readFileSync(engCfg.configFile(domain), 'utf-8'));
 
     // 4. SETUP
     process.stdout.write(`  setup...`);
-    const setupResult = await engCfg.runner.setupElastic({ domain, mapping });
+    const setupResult = await engCfg.setup({ domain, config });
     process.stdout.write(` ${setupResult.setupMs.toFixed(0)}ms\n`);
 
     // 5. INDEX
     process.stdout.write(`  indexing ${docs.length} docs...`);
-    const indexResult = await engCfg.runner.indexElastic({
+    const indexResult = await engCfg.index({
         domain,
         docs,
         batchSize: 500,
@@ -207,7 +232,7 @@ async function runCell({ engine, domain, size, reps, teardown }) {
     // 6. SEARCH
     process.stdout.write(`  running ${queries.length} queries × ${reps} reps...`);
     const searchStart = Date.now();
-    const { rows } = await engCfg.runner.runQueriesElastic({ domain, queries, reps });
+    const { rows } = await engCfg.search({ domain, queries, reps });
     const searchSec = ((Date.now() - searchStart) / 1000).toFixed(1);
     const errorRows = rows.filter((r) => r.status !== 'ok').length;
     process.stdout.write(` ${rows.length} rows in ${searchSec}s (${errorRows} errors)\n`);
@@ -233,7 +258,7 @@ async function runCell({ engine, domain, size, reps, teardown }) {
 
     // 9. Teardown
     if (teardown) {
-        await engCfg.runner.teardownElastic({ domain });
+        await engCfg.teardown({ domain });
         console.log(`  teardown ok`);
     } else {
         console.log(`  (teardown skipped)`);

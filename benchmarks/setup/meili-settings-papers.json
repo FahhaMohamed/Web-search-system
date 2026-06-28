@@ -1,0 +1,5 @@
+{
+  "searchableAttributes": ["title", "summary"],
+  "filterableAttributes": ["published_year", "categories", "authors"],
+  "sortableAttributes": ["published_year"]
+}
