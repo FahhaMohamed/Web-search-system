@@ -10,7 +10,7 @@ class ShardClient {
             const res = await axios.put(
                 `${this.baseUrl}/docs`,
                 { domain, documents },
-                { timeout: 5000 }
+                { timeout: 300000 }
             );
             return { ok: true, stored: res.data.stored, ids: res.data.ids };
         } catch (err) {

@@ -21,7 +21,7 @@ class IndexClient {
             const fields = (schema && Array.isArray(schema[node])) ? schema[node] : [];
             const projected = projectDocs(documents, fields);
             try {
-                const res = await axios.post(`${url}/index`, { domain, documents: projected }, { timeout: 5000 });
+                const res = await axios.post(`${url}/index`, { domain, documents: projected }, { timeout: 300000 });
                 return { node, ok: true, indexed: res.data.indexed, nodeId: res.data.nodeId };
             } catch (err) {
                 const status = err.response ? err.response.status : undefined;

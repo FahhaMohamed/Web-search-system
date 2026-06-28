@@ -7,7 +7,7 @@ class IndexClient {
 
     async index(domain, documents) {
         try {
-            const res = await axios.post(`${this.baseUrl}/index`, { domain, documents }, { timeout: 10000 });
+            const res = await axios.post(`${this.baseUrl}/index`, { domain, documents }, { timeout: 600000 });
             return res.data;
         } catch (err) {
             if (err.response) {
