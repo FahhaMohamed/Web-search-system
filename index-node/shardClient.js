@@ -1,4 +1,5 @@
 const axios = require('axios');
+const httpAgent = require('./httpAgent');
 
 class ShardClient {
     constructor(baseUrl) {
@@ -10,7 +11,7 @@ class ShardClient {
             const res = await axios.put(
                 `${this.baseUrl}/docs`,
                 { domain, documents },
-                { timeout: 300000 }
+                { timeout: 300000, httpAgent }
             );
             return { ok: true, stored: res.data.stored, ids: res.data.ids };
         } catch (err) {

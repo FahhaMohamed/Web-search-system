@@ -1,4 +1,5 @@
 const axios = require('axios');
+const httpAgent = require('./httpAgent');
 
 class SpecialtyClient {
     constructor(baseUrl) {
@@ -7,7 +8,7 @@ class SpecialtyClient {
 
     async route(domain, query) {
         try {
-            const res = await axios.post(`${this.baseUrl}/route`, { domain, query }, { timeout: 3000 });
+            const res = await axios.post(`${this.baseUrl}/route`, { domain, query }, { timeout: 3000, httpAgent });
             return res.data;
         } catch (err) {
             if (err.response) {

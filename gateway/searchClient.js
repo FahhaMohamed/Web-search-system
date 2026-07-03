@@ -1,4 +1,5 @@
 const axios = require('axios');
+const httpAgent = require('./httpAgent');
 
 const NODE_URLS = {
     text: process.env.TEXT_NODE_URL || 'http://search-node-1:3001',
@@ -15,7 +16,7 @@ class SearchClient {
         const url = this.urls[nodeName];
         if (!url) return { results: [] };
         try {
-            const res = await axios.post(`${url}/search`, { domain, query, filters }, { timeout: 5000 });
+            const res = await axios.post(`${url}/search`, { domain, query, filters }, { timeout: 5000, httpAgent });
             return { results: res.data.results || [] };
         } catch (err) {
             return { results: [], error: err.message };

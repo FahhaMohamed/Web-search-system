@@ -1,4 +1,5 @@
 const axios = require('axios');
+const httpAgent = require('./httpAgent');
 
 class SchemaClient {
     constructor(baseUrl) {
@@ -8,7 +9,7 @@ class SchemaClient {
     async fetch(domain) {
         try {
             //http://localhost:5000/schema/domain
-            const response = await axios.get(`${this.baseUrl}/schema/${domain}`);
+            const response = await axios.get(`${this.baseUrl}/schema/${domain}`, { httpAgent });
             return response.data.schema;
         } catch (err) {
             if (err.response && err.response.status === 404) {

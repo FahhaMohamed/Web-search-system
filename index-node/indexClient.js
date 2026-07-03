@@ -1,4 +1,5 @@
 const axios = require('axios');
+const httpAgent = require('./httpAgent');
 
 function projectDocs(documents, fields) {
     return documents.map(doc => {
@@ -21,7 +22,7 @@ class IndexClient {
             const fields = (schema && Array.isArray(schema[node])) ? schema[node] : [];
             const projected = projectDocs(documents, fields);
             try {
-                const res = await axios.post(`${url}/index`, { domain, documents: projected }, { timeout: 300000 });
+                const res = await axios.post(`${url}/index`, { domain, documents: projected }, { timeout: 300000, httpAgent });
                 return { node, ok: true, indexed: res.data.indexed, nodeId: res.data.nodeId };
             } catch (err) {
                 const status = err.response ? err.response.status : undefined;
