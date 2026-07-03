@@ -15,17 +15,6 @@ services:
     networks:
       - external-bench-network
 
-  meilisearch:
-    image: getmeili/meilisearch:v1.6
-    container_name: bench-meilisearch
-    environment:
-      - MEILI_ENV=development
-      - MEILI_NO_ANALYTICS=true
-    ports:
-      - "7700:7700"
-    networks:
-      - external-bench-network
-
 networks:
   external-bench-network:
     driver: bridge

@@ -2,7 +2,7 @@
  * Black-box benchmark runner for OUR optimized architecture.
  *
  * Speaks only public HTTP — Schema Registry at :5000 for setup, Gateway at
- * :3000 for indexing and search. Same protocol Elastic/Meili runners use.
+ * :3000 for indexing and search. Same protocol the Elastic runner uses.
  *
  * Three phases (each timed separately so the orchestrator can record
  * setup vs indexing vs search separately):

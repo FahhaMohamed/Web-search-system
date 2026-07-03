@@ -1,5 +1,0 @@
-{
-  "searchableAttributes": ["title", "extract"],
-  "filterableAttributes": ["length", "last_modified", "categories"],
-  "sortableAttributes": ["length"]
-}

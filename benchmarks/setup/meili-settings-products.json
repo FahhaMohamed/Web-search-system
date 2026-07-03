@@ -1,5 +1,0 @@
-{
-  "searchableAttributes": ["product_name", "ingredients_text"],
-  "filterableAttributes": ["nutriscore_numeric", "energy_100g", "categories", "brands"],
-  "sortableAttributes": ["nutriscore_numeric", "energy_100g"]
-}

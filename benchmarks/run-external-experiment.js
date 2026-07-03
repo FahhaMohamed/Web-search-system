@@ -4,7 +4,7 @@
  *
  * Runs the full (engine × domain × size) matrix or any selected subset
  * specified via CLI flags. Phase 1 wires only `elastic`. Phases 2 and 3
- * extend the ENGINES dispatch table with meili / ours.
+ * extend the ENGINES dispatch table with additional engines.
  *
  * Usage:
  *   node benchmarks/run-external-experiment.js                            # full matrix
@@ -27,7 +27,6 @@ const axios = require('axios');
 const { execSync } = require('child_process');
 
 const elasticRunner = require('./harness/run-elastic');
-const meiliRunner = require('./harness/run-meili');
 const oursRunner = require('./harness/run-ours');
 const loadWikipedia = require('./loaders/load-wikipedia');
 const loadArxiv = require('./loaders/load-arxiv');
@@ -47,24 +46,6 @@ const ENGINES = {
         search: (args) => elasticRunner.runQueriesElastic(args),
         teardown: (args) => elasticRunner.teardownElastic(args),
     },
-    meili: {
-        healthUrl: 'http://localhost:7700/health',
-        configFile: (domain) => path.join(SETUP, `meili-settings-${domain}.json`),
-        // Meili's primary-key character set is [a-zA-Z0-9_-]. arXiv IDs like
-        // `ax-2606.27377` are accepted by Elastic but rejected by Meili.
-        // We normalize on the way in so the same dataset is comparable.
-        prepareDocs: (docs) => {
-            for (const d of docs) {
-                if (typeof d.id === 'string' && d.id.indexOf('.') !== -1) {
-                    d.id = d.id.replace(/\./g, '_');
-                }
-            }
-        },
-        setup: (args) => meiliRunner.setupMeili({ domain: args.domain, settings: args.config }),
-        index: (args) => meiliRunner.indexMeili(args),
-        search: (args) => meiliRunner.runQueriesMeili(args),
-        teardown: (args) => meiliRunner.teardownMeili(args),
-    },
     ours: {
         // Healthcheck through the Schema Registry — both must be up for
         // setup+index to work, but the registry comes online last so
@@ -72,7 +53,7 @@ const ENGINES = {
         healthUrl: 'http://localhost:5000/health',
         configFile: (domain) => path.join(SETUP, `ours-schema-${domain}.json`),
         // Our system has no DELETE-by-index endpoint, so docs accumulate
-        // across cells. To match Elastic/Meili's per-cell isolation we do
+        // across cells. To match Elastic's per-cell isolation we do
         // a docker compose down + wipe data/ + up from the worktree.
         // Worktree path is set via OURS_WORKTREE env var, defaults to
         // the sibling layout used in development.
@@ -260,7 +241,7 @@ async function runCell({ engine, domain, size, reps, teardown }) {
     }
     process.stdout.write(` OK (${docs.length} docs)\n`);
 
-    // 3. Load queries + per-engine config (mapping for Elastic, settings for Meili, etc.)
+    // 3. Load queries + per-engine config (mapping for Elastic, schema for Ours, etc.)
     const queries = loadCanonicalQueries(domain);
     const config = JSON.parse(fs.readFileSync(engCfg.configFile(domain), 'utf-8'));
 
