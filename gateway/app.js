@@ -4,6 +4,7 @@ const { SpecialtyClient } = require('./specialtyClient');
 const { SearchClient } = require('./searchClient');
 const { IndexClient } = require('./indexClient');
 const { ShardClient } = require('./shardClient');
+const { RouteCache } = require('./routeCache');
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -17,6 +18,7 @@ let specialtyClient = new SpecialtyClient(SPECIALTY_NODE_URL);
 let searchClient = new SearchClient();
 let indexClient = new IndexClient(INDEX_NODE_URL);
 let shardClient = new ShardClient(SHARD_CLUSTER_URL);
+const routeCache = new RouteCache();
 
 function setSpecialtyClient(client) { specialtyClient = client; }
 function setSearchClient(client) { searchClient = client; }
@@ -52,13 +54,18 @@ app.post('/api/search', async (req, res) => {
     if (!query) return res.status(400).json({ error: 'query is required' });
     if (!domain) return res.status(400).json({ error: 'domain is required' });
     
-    //Query Splitter which decides which Search Nodes to call based on the query and domain schema
-    let routing;
-    try {
-        routing = await specialtyClient.route(domain, query);
-    } catch (err) {
-        const status = err.status || 500;
-        return res.status(status).json({ error: err.message });
+    //Query Splitter which decides which Search Nodes to call based on the query and domain schema.
+    //Cache the routing decision per (domain, query) — same intent returns the same nodes
+    //until the domain schema changes (5-minute TTL).
+    let routing = routeCache.get(domain, query);
+    if (!routing) {
+        try {
+            routing = await specialtyClient.route(domain, query);
+        } catch (err) {
+            const status = err.status || 500;
+            return res.status(status).json({ error: err.message });
+        }
+        routeCache.set(domain, query, routing);
     }
     
     //If Specialty Node fails, we can have a fallback to call all Search Nodes or a default set of nodes.
