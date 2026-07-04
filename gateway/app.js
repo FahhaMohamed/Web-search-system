@@ -50,14 +50,19 @@ function mergeResults(nodeResults) {
 }
 
 app.post('/api/search', async (req, res) => {
+    const t0 = process.hrtime.bigint();
+    const dtMs = (from) => Number(process.hrtime.bigint() - from) / 1_000_000;
+    const timings = {};
+
     const { domain, query, filters = {}, limit = 20, minConfidence = 0 } = req.body || {};
     if (!query) return res.status(400).json({ error: 'query is required' });
     if (!domain) return res.status(400).json({ error: 'domain is required' });
-    
-    //Query Splitter which decides which Search Nodes to call based on the query and domain schema.
-    //Cache the routing decision per (domain, query) — same intent returns the same nodes
-    //until the domain schema changes (5-minute TTL).
+    timings.parseInput = dtMs(t0);
+
+    // ------ Phase 1: routing decision (cache hit or Specialty Node call) ------
+    const tRoute = process.hrtime.bigint();
     let routing = routeCache.get(domain, query);
+    const cacheHit = routing != null;
     if (!routing) {
         try {
             routing = await specialtyClient.route(domain, query);
@@ -67,9 +72,13 @@ app.post('/api/search', async (req, res) => {
         }
         routeCache.set(domain, query, routing);
     }
-    
-    //If Specialty Node fails, we can have a fallback to call all Search Nodes or a default set of nodes.
+    timings.route = dtMs(tRoute);
+    timings.routeCacheHit = cacheHit;
+
+    // ------ Phase 2: fan-out to search nodes ------
+    const tFanout = process.hrtime.bigint();
     const nodes = (routing.nodes || []).filter(n => (n.confidence || 0) >= minConfidence);
+    timings.nodeCount = nodes.length;
     const nodeResponses = await Promise.all(nodes.map(async (n) => {
         const out = await searchClient.search(n.name, { domain, query, filters });
         return {
@@ -79,10 +88,16 @@ app.post('/api/search', async (req, res) => {
             error: out.error,
         };
     }));
+    timings.fanout = dtMs(tFanout);
 
+    // ------ Phase 3: merge results ------
+    const tMerge = process.hrtime.bigint();
     const finalResults = mergeResults(nodeResponses);
     const topK = finalResults.slice(0, limit);
+    timings.merge = dtMs(tMerge);
 
+    // ------ Phase 4: late-hydrate full docs from shard cluster ------
+    const tHydrate = process.hrtime.bigint();
     const ids = topK.map(r => r.id).filter(Boolean);
     const fullDocs = await shardClient.batchGet(domain, ids);
     const byId = new Map(fullDocs.map(d => [d.id, d]));
@@ -90,8 +105,12 @@ app.post('/api/search', async (req, res) => {
         const doc = byId.get(r.id);
         return doc ? { ...doc, score: r.score, sources: r.sources } : r;
     });
+    timings.hydrate = dtMs(tHydrate);
+    timings.hydrateIds = ids.length;
 
-    res.json({
+    // ------ Phase 5: shape response ------
+    const tShape = process.hrtime.bigint();
+    const body = {
         query,
         domain,
         totalResults: finalResults.length,
@@ -104,7 +123,11 @@ app.post('/api/search', async (req, res) => {
             error: nr.error,
         })),
         timestamp: new Date().toISOString(),
-    });
+        _timings: timings,
+    };
+    timings.shape = dtMs(tShape);
+    timings.total = dtMs(t0);
+    res.json(body);
 });
 
 app.post('/api/index', async (req, res) => {
