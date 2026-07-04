@@ -1,5 +1,6 @@
 const axios = require('axios');
 const httpAgent = require('./httpAgent');
+const { pack, unpack, MSGPACK_MIME } = require('./msgpack');
 
 function parseTarget(url) {
     if (typeof url === 'string' && url.startsWith('unix:')) {
@@ -31,13 +32,19 @@ class SearchIndexClient {
             const fields = (schema && Array.isArray(schema[node])) ? schema[node] : [];
             const projected = projectDocs(documents, fields);
             try {
-                const opts = { timeout: 300000, httpAgent };
+                const opts = {
+                    timeout: 300000,
+                    httpAgent,
+                    headers: { 'Content-Type': MSGPACK_MIME, 'Accept': MSGPACK_MIME },
+                    responseType: 'arraybuffer',
+                };
                 if (target.socketPath) opts.socketPath = target.socketPath;
-                const res = await axios.post(`${target.baseURL}/index`, { domain, documents: projected }, opts);
-                return { node, ok: true, indexed: res.data.indexed, nodeId: res.data.nodeId };
+                const res = await axios.post(`${target.baseURL}/index`, pack({ domain, documents: projected }), opts);
+                const data = unpack(Buffer.from(res.data));
+                return { node, ok: true, indexed: data.indexed, nodeId: data.nodeId };
             } catch (err) {
                 const status = err.response ? err.response.status : undefined;
-                const message = err.response ? (err.response.data && err.response.data.error) || err.message : err.message;
+                const message = err.message;
                 return { node, ok: false, status, error: message };
             }
         }));

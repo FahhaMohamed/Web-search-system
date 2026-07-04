@@ -7,6 +7,7 @@ const { TextIndex } = require('./textIndex');
 const { textSearch } = require('./textSearch');
 const { metadataSearch } = require('./metadataSearch');
 const { tagsSearch } = require('./tagsSearch');
+const { msgpackBody, sendBody } = require('./msgpack');
 
 const TEXT_ALGORITHM = process.env.TEXT_ALGORITHM || 'inverted';
 
@@ -31,6 +32,7 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
         textIndices: new Map(),
     };
     const app = express();
+    app.use(msgpackBody({ limit: 100 * 1024 * 1024 }));
     app.use(express.json({ limit: '50mb' }));
 
     app.get('/health', (req, res) => {
@@ -63,7 +65,7 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
             }
         }
 
-        res.json({ domain, indexed: ids.length, ids, specialty: state.specialty, nodeId: state.nodeId });
+        sendBody(req, res, { domain, indexed: ids.length, ids, specialty: state.specialty, nodeId: state.nodeId });
     });
 
     app.post('/search', async (req, res) => {
@@ -83,7 +85,7 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
         if (state.specialty === 'text' && TEXT_ALGORITHM === 'inverted') {
             const fields = Array.isArray(schema.text) ? schema.text : [];
             if (fields.length === 0) {
-                return res.json({ domain, query, specialty: state.specialty, results: [] });
+                return sendBody(req, res, { domain, query, specialty: state.specialty, results: [] });
             }
             let idx = state.textIndices.get(domain);
             if (!idx) {
@@ -100,20 +102,20 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
                 results.push({ id: h.id, score: h.score });
                 if (parsedLimit && results.length >= parsedLimit) break;
             }
-            return res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
+            return sendBody(req, res, { domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
         }
 
         if (state.specialty === 'text') {
             const fields = Array.isArray(schema.text) ? schema.text : [];
             if (fields.length === 0) {
-                return res.json({ domain, query, specialty: state.specialty, results: [] });
+                return sendBody(req, res, { domain, query, specialty: state.specialty, results: [] });
             }
             const docs = state.docStore.list(domain);
             const results = textSearch(query, docs, fields)
                 .map(r => applyFilters(r, filters))
                 .filter(Boolean)
                 .map(r => ({ id: r.id, score: r.score }));
-            return res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
+            return sendBody(req, res, { domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
         }
 
         const handler = SPECIALTIES[state.specialty];
@@ -121,7 +123,7 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
 
         const fields = schema[handler.schemaKey];
         if (!Array.isArray(fields) || fields.length === 0) {
-            return res.json({ domain, query, specialty: state.specialty, results: [] });
+            return sendBody(req, res, { domain, query, specialty: state.specialty, results: [] });
         }
 
         const docs = state.docStore.list(domain);
@@ -130,7 +132,7 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
             .filter(Boolean)
             .map(r => ({ id: r.id, score: r.score }));
 
-        res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
+        sendBody(req, res, { domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
     });
 
     app._state = state;

@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-RUN npm install express axios
+RUN npm install express axios msgpackr
 
 COPY . .
 

@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-RUN npm install express
+RUN npm install express msgpackr
 
 COPY . .
 

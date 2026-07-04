@@ -1,5 +1,6 @@
 const axios = require('axios');
 const httpAgent = require('./httpAgent');
+const { pack, unpack, MSGPACK_MIME } = require('./msgpack');
 
 const NODE_URLS = {
     text: process.env.TEXT_NODE_URL || 'http://search-node-1:3001',
@@ -27,10 +28,16 @@ class SearchClient {
         try {
             const body = { domain, query, filters };
             if (Number.isInteger(limit) && limit > 0) body.limit = limit;
-            const opts = { timeout: 5000, httpAgent };
+            const opts = {
+                timeout: 5000,
+                httpAgent,
+                headers: { 'Content-Type': MSGPACK_MIME, 'Accept': MSGPACK_MIME },
+                responseType: 'arraybuffer',
+            };
             if (target.socketPath) opts.socketPath = target.socketPath;
-            const res = await axios.post(`${target.baseURL}/search`, body, opts);
-            return { results: res.data.results || [] };
+            const res = await axios.post(`${target.baseURL}/search`, pack(body), opts);
+            const data = unpack(Buffer.from(res.data));
+            return { results: data.results || [] };
         } catch (err) {
             return { results: [], error: err.message };
         }

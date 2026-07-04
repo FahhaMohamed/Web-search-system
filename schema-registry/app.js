@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { FileStorage } = require('./storage');
+const { msgpackBody, sendBody } = require('./msgpack');
 
 const DEFAULT_SCHEMA_FILE = path.join(__dirname, '..', 'data', 'schemas.json');
 
@@ -21,6 +22,7 @@ class SchemaRegistry {
 }
 
 const app = express();
+app.use(msgpackBody({ limit: 100 * 1024 * 1024 }));
 app.use(express.json());
 
 const registry = new SchemaRegistry();
@@ -81,7 +83,7 @@ app.get('/schema/:domain', (req, res) => {
         return res.status(404).json({ error: `Schema not found for domain: ${domain}` });
     }
     const schema = registry.schemas.get(domain);
-    res.json({ domain, schema });
+    sendBody(req, res, { domain, schema });
 });
 
 app.put('/schema/:domain', (req, res) => {

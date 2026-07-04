@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies
 
-RUN npm install express fs axios
+RUN npm install express fs axios msgpackr
 
 # Copy application code
 COPY . .

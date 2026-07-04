@@ -1,10 +1,12 @@
 const express = require('express');
 const path = require('path');
 const { ShardStore } = require('./storage');
+const { msgpackBody, sendBody } = require('./msgpack');
 
 function createApp({ nodeId, store }) {
     const state = { nodeId, store };
     const app = express();
+    app.use(msgpackBody({ limit: 100 * 1024 * 1024 }));
     app.use(express.json({ limit: '10mb' }));
 
     app.get('/health', (req, res) => {
@@ -26,7 +28,7 @@ function createApp({ nodeId, store }) {
             ids.push(state.store.put(domain, doc));
         }
         state.store.flush();
-        res.json({ domain, stored: ids.length, ids, nodeId: state.nodeId });
+        sendBody(req, res, { domain, stored: ids.length, ids, nodeId: state.nodeId });
     });
 
     app.post('/docs/batch-get', (req, res) => {
@@ -35,7 +37,7 @@ function createApp({ nodeId, store }) {
         if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids array is required' });
 
         const documents = state.store.batchGet(domain, ids);
-        res.json({ domain, documents, nodeId: state.nodeId });
+        sendBody(req, res, { domain, documents, nodeId: state.nodeId });
     });
 
     app._state = state;

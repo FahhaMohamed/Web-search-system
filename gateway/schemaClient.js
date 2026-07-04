@@ -1,5 +1,6 @@
 const axios = require('axios');
 const httpAgent = require('./httpAgent');
+const { unpack, MSGPACK_MIME } = require('./msgpack');
 
 function parseTarget(url) {
     if (typeof url === 'string' && url.startsWith('unix:')) {
@@ -16,10 +17,16 @@ class SchemaClient {
 
     async fetch(domain) {
         try {
-            const opts = { timeout: 3000, httpAgent };
+            const opts = {
+                timeout: 3000,
+                httpAgent,
+                headers: { 'Accept': MSGPACK_MIME },
+                responseType: 'arraybuffer',
+            };
             if (this._target.socketPath) opts.socketPath = this._target.socketPath;
             const response = await axios.get(`${this._target.baseURL}/schema/${domain}`, opts);
-            return response.data.schema;
+            const data = unpack(Buffer.from(response.data));
+            return data.schema;
         } catch (err) {
             if (err.response && err.response.status === 404) return null;
             throw err;

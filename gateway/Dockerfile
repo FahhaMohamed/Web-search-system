@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies
 
-RUN npm install express axios cors
+RUN npm install express axios cors msgpackr
 
 # Copy application code
 COPY . .
