@@ -18,6 +18,7 @@ RUN adduser -S searchnode -u 1001
 
 # Set ownership
 RUN chown -R searchnode:nodejs /app /data
+RUN mkdir -p /var/sockets && chown searchnode:nodejs /var/sockets && chmod 777 /var/sockets
 USER searchnode
 
 EXPOSE 3001

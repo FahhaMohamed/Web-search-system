@@ -62,8 +62,17 @@ function setIndexClient(c) { defaultApp._state.indexClient = c; }
 function setShardClient(c) { defaultApp._state.shardClient = c; }
 
 const PORT = process.env.PORT || 4001;
+const SOCKET_PATH = process.env.SOCKET_PATH;
 
 if (require.main === module) {
+    if (SOCKET_PATH) {
+        try { require('fs').unlinkSync(SOCKET_PATH); } catch (_e) {}
+        const sockServer = defaultApp.listen(SOCKET_PATH, () => {
+            try { require('fs').chmodSync(SOCKET_PATH, 0o777); } catch (_e) {}
+            console.log(`Index Node (${NODE_ID}) listening on socket ${SOCKET_PATH}`);
+        });
+        sockServer.on('error', (e) => console.error(`Index Node socket bind FAILED: ${e.code} ${e.message}`));
+    }
     defaultApp.listen(PORT, () => {
         console.log(`Index Node (${NODE_ID}) listening on port ${PORT}`);
     });

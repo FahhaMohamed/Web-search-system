@@ -12,6 +12,7 @@ RUN addgroup -g 1001 -S nodejs
 RUN adduser -S shardcluster -u 1001
 
 RUN chown -R shardcluster:nodejs /app /data
+RUN mkdir -p /var/sockets && chown shardcluster:nodejs /var/sockets && chmod 777 /var/sockets
 USER shardcluster
 
 EXPOSE 7000

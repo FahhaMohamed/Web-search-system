@@ -52,10 +52,19 @@ function makeDefaultStore() {
 
 const NODE_ID = process.env.NODE_ID || 'shard-cluster';
 const PORT = process.env.PORT || 7000;
+const SOCKET_PATH = process.env.SOCKET_PATH;
 
 const defaultApp = createApp({ nodeId: NODE_ID, store: makeDefaultStore() });
 
 if (require.main === module) {
+    if (SOCKET_PATH) {
+        try { require('fs').unlinkSync(SOCKET_PATH); } catch (_e) {}
+        const sockServer = defaultApp.listen(SOCKET_PATH, () => {
+            try { require('fs').chmodSync(SOCKET_PATH, 0o777); } catch (_e) {}
+            console.log(`Shard Cluster listening on socket ${SOCKET_PATH}`);
+        });
+        sockServer.on('error', (e) => console.error(`Shard Cluster socket bind FAILED: ${e.code} ${e.message}`));
+    }
     defaultApp.listen(PORT, () => {
         console.log(`Shard Cluster listening on port ${PORT}`);
     });

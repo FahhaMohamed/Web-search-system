@@ -1,14 +1,24 @@
 const axios = require('axios');
 const httpAgent = require('./httpAgent');
 
+function parseTarget(url) {
+    if (typeof url === 'string' && url.startsWith('unix:')) {
+        return { baseURL: 'http://unix', socketPath: url.slice(5) };
+    }
+    return { baseURL: url, socketPath: null };
+}
+
 class SpecialtyClient {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
+        this._target = parseTarget(baseUrl);
     }
 
     async route(domain, query) {
         try {
-            const res = await axios.post(`${this.baseUrl}/route`, { domain, query }, { timeout: 3000, httpAgent });
+            const opts = { timeout: 3000, httpAgent };
+            if (this._target.socketPath) opts.socketPath = this._target.socketPath;
+            const res = await axios.post(`${this._target.baseURL}/route`, { domain, query }, opts);
             return res.data;
         } catch (err) {
             if (err.response) {

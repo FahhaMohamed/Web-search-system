@@ -140,8 +140,17 @@ app.post('/route', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 6000;
+const SOCKET_PATH = process.env.SOCKET_PATH;
 
 if (require.main === module) {
+    if (SOCKET_PATH) {
+        try { require('fs').unlinkSync(SOCKET_PATH); } catch (_e) {}
+        const sockServer = app.listen(SOCKET_PATH, () => {
+            try { require('fs').chmodSync(SOCKET_PATH, 0o777); } catch (_e) {}
+            console.log(`Specialty Node listening on socket ${SOCKET_PATH}`);
+        });
+        sockServer.on('error', (e) => console.error(`Specialty Node socket bind FAILED: ${e.code} ${e.message}`));
+    }
     app.listen(PORT, () => {
         console.log(`Specialty Node listening on port ${PORT}`);
     });

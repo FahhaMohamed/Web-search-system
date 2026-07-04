@@ -6,10 +6,12 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
+      - SOCKET_PATH=/var/sockets/schema.sock
     networks:
       - search-network
     volumes:
       - ./data:/data
+      - sockets:/var/sockets
 
   specialty-node:
     build: ./specialty-node
@@ -18,11 +20,14 @@ services:
       - "6000:6000"
     environment:
       - PORT=6000
-      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - SOCKET_PATH=/var/sockets/specialty.sock
+      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
     depends_on:
       - schema-registry
     networks:
       - search-network
+    volumes:
+      - sockets:/var/sockets
 
   gateway:
     build: ./gateway
@@ -31,13 +36,13 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
-      - SPECIALTY_NODE_URL=http://specialty-node:6000
-      - INDEX_NODE_URL=http://index-node:4001
-      - SHARD_CLUSTER_URL=http://shard-cluster:7000
-      - TEXT_NODE_URL=http://text-node:3001
-      - METADATA_NODE_URL=http://metadata-node:3002
-      - TAGS_NODE_URL=http://tags-node:3003
+      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
+      - SPECIALTY_NODE_URL=unix:/var/sockets/specialty.sock
+      - INDEX_NODE_URL=unix:/var/sockets/index.sock
+      - SHARD_CLUSTER_URL=unix:/var/sockets/shard.sock
+      - TEXT_NODE_URL=unix:/var/sockets/text.sock
+      - METADATA_NODE_URL=unix:/var/sockets/metadata.sock
+      - TAGS_NODE_URL=unix:/var/sockets/tags.sock
     depends_on:
       - schema-registry
       - specialty-node
@@ -50,6 +55,7 @@ services:
       - search-network
     volumes:
       - ./data:/data
+      - sockets:/var/sockets
 
   text-node:
     build: ./search-node
@@ -60,7 +66,8 @@ services:
       - NODE_ID=text-node
       - NODE_SPECIALTY=text
       - PORT=3001
-      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - SOCKET_PATH=/var/sockets/text.sock
+      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
       - TEXT_ALGORITHM=${TEXT_ALGORITHM:-inverted}
       - NODE_OPTIONS=--max-old-space-size=4096
     restart: unless-stopped
@@ -68,6 +75,7 @@ services:
       - search-network
     volumes:
       - ./data:/data
+      - sockets:/var/sockets
 
   metadata-node:
     build: ./search-node
@@ -78,11 +86,13 @@ services:
       - NODE_ID=metadata-node
       - NODE_SPECIALTY=metadata
       - PORT=3002
-      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - SOCKET_PATH=/var/sockets/metadata.sock
+      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
     networks:
       - search-network
     volumes:
       - ./data:/data
+      - sockets:/var/sockets
 
   tags-node:
     build: ./search-node
@@ -93,11 +103,13 @@ services:
       - NODE_ID=tags-node
       - NODE_SPECIALTY=tags
       - PORT=3003
-      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
+      - SOCKET_PATH=/var/sockets/tags.sock
+      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
     networks:
       - search-network
     volumes:
       - ./data:/data
+      - sockets:/var/sockets
 
   index-node:
     build: ./index-node
@@ -107,11 +119,12 @@ services:
     environment:
       - NODE_ID=index-node
       - PORT=4001
-      - SCHEMA_REGISTRY_URL=http://schema-registry:5000
-      - SHARD_CLUSTER_URL=http://shard-cluster:7000
-      - TEXT_NODE_URL=http://text-node:3001
-      - METADATA_NODE_URL=http://metadata-node:3002
-      - TAGS_NODE_URL=http://tags-node:3003
+      - SOCKET_PATH=/var/sockets/index.sock
+      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
+      - SHARD_CLUSTER_URL=unix:/var/sockets/shard.sock
+      - TEXT_NODE_URL=unix:/var/sockets/text.sock
+      - METADATA_NODE_URL=unix:/var/sockets/metadata.sock
+      - TAGS_NODE_URL=unix:/var/sockets/tags.sock
     depends_on:
       - schema-registry
       - shard-cluster
@@ -120,6 +133,8 @@ services:
       - tags-node
     networks:
       - search-network
+    volumes:
+      - sockets:/var/sockets
 
   shard-cluster:
     build: ./shard-cluster
@@ -129,12 +144,14 @@ services:
     environment:
       - NODE_ID=shard-cluster
       - PORT=7000
+      - SOCKET_PATH=/var/sockets/shard.sock
       - SHARD_COUNT=4
       - DATA_DIR=/data/shards
     networks:
       - search-network
     volumes:
       - ./data:/data
+      - sockets:/var/sockets
 
   monitoring:
     build: ./monitoring
@@ -154,3 +171,4 @@ networks:
 
 volumes:
   search-data:
+  sockets:

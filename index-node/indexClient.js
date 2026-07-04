@@ -11,18 +11,29 @@ function projectDocs(documents, fields) {
     });
 }
 
+function parseTarget(url) {
+    if (typeof url === 'string' && url.startsWith('unix:')) {
+        return { baseURL: 'http://unix', socketPath: url.slice(5) };
+    }
+    return { baseURL: url, socketPath: null };
+}
+
 class IndexClient {
     constructor(urls) {
         this.urls = urls;
+        this._targets = {};
+        for (const [k, v] of Object.entries(urls)) this._targets[k] = parseTarget(v);
     }
 
     async fanOut(domain, documents, schema) {
-        const entries = Object.entries(this.urls);
-        return Promise.all(entries.map(async ([node, url]) => {
+        const entries = Object.entries(this._targets);
+        return Promise.all(entries.map(async ([node, target]) => {
             const fields = (schema && Array.isArray(schema[node])) ? schema[node] : [];
             const projected = projectDocs(documents, fields);
             try {
-                const res = await axios.post(`${url}/index`, { domain, documents: projected }, { timeout: 300000, httpAgent });
+                const opts = { timeout: 300000, httpAgent };
+                if (target.socketPath) opts.socketPath = target.socketPath;
+                const res = await axios.post(`${target.baseURL}/index`, { domain, documents: projected }, opts);
                 return { node, ok: true, indexed: res.data.indexed, nodeId: res.data.nodeId };
             } catch (err) {
                 const status = err.response ? err.response.status : undefined;

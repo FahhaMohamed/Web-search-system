@@ -18,6 +18,7 @@ RUN adduser -S indexnode -u 1001
 
 # Set ownership
 RUN chown -R indexnode:nodejs /app /data
+RUN mkdir -p /var/sockets && chown indexnode:nodejs /var/sockets && chmod 777 /var/sockets
 USER indexnode
 
 EXPOSE 4001

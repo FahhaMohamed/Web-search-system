@@ -10,6 +10,7 @@ RUN addgroup -g 1001 -S nodejs
 RUN adduser -S search -u 1001
 
 RUN chown -R search:nodejs /app
+RUN mkdir -p /var/sockets && chown search:nodejs /var/sockets && chmod 777 /var/sockets
 USER search
 
 EXPOSE 6000

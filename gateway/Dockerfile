@@ -15,6 +15,7 @@ RUN adduser -S search -u 1001
 
 # Set ownership
 RUN chown -R search:nodejs /app
+RUN mkdir -p /var/sockets && chown search:nodejs /var/sockets && chmod 777 /var/sockets
 USER search
 
 EXPOSE 3000
