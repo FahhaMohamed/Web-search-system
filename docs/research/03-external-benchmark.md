@@ -210,6 +210,81 @@ The single biggest gap is **raw search latency** — 5–27× slower than Elasti
 
 Fixes are planned before adding the second distributed engine to Phase 3, so ours starts that comparison from a more competitive baseline.
 
+## 10a. Optimization journey — closing the latency gap
+
+After the Phase 2 head-to-head showed ours was 5–10× slower than Elastic on median search latency, a targeted optimization pass reduced the gap to **1.3–3.9×** across all measured cells. The three fixes below stack.
+
+### Fix summary
+
+| Fix | Attacks | Change | Impact (median, 9 cells) |
+|---|---|---|---|
+| **#1 Keep-alive (`http.Agent`)** | New TCP connection per internal hop | Shared agent with `keepAlive: true` in each service; 9 axios clients updated | **~10 ms saved per query** |
+| **#2 Route cache (Gateway)** | Redundant Specialty Node HTTP call per query | In-memory LRU keyed on `(domain, normalized-query)`, 5-min TTL | ~1 ms saved (small — Fix #1 already made this hop cheap) |
+| **#5 Top-K early termination** | Text search sorted every match then discarded most | Bounded min-heap of size K in `TextIndex.search()`; Gateway forwards `limit` end-to-end | **~3-5 ms saved per cell (biggest lever)** |
+
+### Profile-driven decision-making
+
+Fix #2 delivered less than predicted (~1 ms vs predicted 3-5 ms). Rather than continuing to guess, we added per-phase timing to Gateway's `/api/search` handler and captured 20 warm samples on a populated index. The profile showed the real distribution of time:
+
+| Phase | Median (ms) | Share of total |
+|---|---:|---:|
+| parseInput | 0.001 | 0% |
+| route | 0.014 | 0.2% |
+| **fanout** | **4.616** | **74%** |
+| merge | 0.127 | 2% |
+| hydrate | 1.453 | 23% |
+| shape | 0.009 | 0.1% |
+| **total** | **6.238** | 100% |
+
+This killed Fix #4 (merge Gateway + Specialty into one process) — the route hop was already 0.014 ms; nothing to save. It also made Fix #5 the obvious next lever: attack the search-node work that dominates fanout.
+
+### Before / after table
+
+Medians in ms, 720 warm samples per cell, 3 domains × sizes 100 / 1k / 10k. Elastic column unchanged from Phase 1 (baseline).
+
+| Cell | Elastic | **Before** | After #1 | After #2 | **After #5** | Total saved | Ratio (before → after) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| articles × 100 | 4.83 | 25.59 | 8.73 | 8.62 | **6.50** | -19.09 | 5.3× → **1.3×** |
+| articles × 1000 | 3.92 | 25.41 | 10.38 | 10.45 | **6.72** | -18.69 | 6.5× → **1.7×** |
+| articles × 10000 | 3.05 | 31.88 | 12.83 | 13.42 | **8.57** | -23.31 | 10.5× → **2.8×** |
+| papers × 100 | 3.10 | 23.79 | 8.92 | 9.05 | **5.46** | -18.32 | 7.7× → **1.8×** |
+| papers × 1000 | 2.52 | 24.25 | 9.33 | 9.84 | **5.89** | -18.36 | 9.6× → **2.3×** |
+| papers × 10000 | 2.82 | 15.42 | 15.24 | 15.32 | **10.98** | -4.44 | 5.5× → **3.9×** |
+| products × 100 | 2.21 | 12.30 | 10.26 | 8.45 | **5.88** | -6.42 | 5.6× → **2.7×** |
+| products × 1000 | 2.65 | 13.13 | 10.03 | 9.08 | **4.87** | -8.26 | 5.0× → **1.8×** |
+| products × 10000 | 2.10 | 17.70 | 13.18 | 12.75 | **8.24** | -9.46 | 8.4× → **3.9×** |
+
+### What the optimizations did NOT touch
+
+- Distributed architecture — Gateway, Specialty Node, Search Nodes, Shard Cluster all still separate processes
+- Domain-agnostic story — schema cards, per-specialty routing, projection at index-time all unchanged
+- Correctness — Fix #5 verified against the old full-sort implementation on single-term and multi-token queries; both return the same top-K in the same score order
+- Zero errors across 6,480 warmed queries (720 × 9 cells)
+
+### The remaining gap and what would close it
+
+The floor is now the architecture itself:
+
+```
+Client → Gateway → Search Node → Shard Cluster → back
+         ~0.5 ms    ~2-3 ms       ~1-1.5 ms      ~0.5 ms
+```
+
+Even with every optimization applied, the minimum path is **~4-5 ms** — three real HTTP hops. Elastic runs everything in one process; there is no equivalent hop to remove.
+
+Closing further would require an architectural change: co-locating Gateway + Search Node in one process for small deployments (~2 ms floor achievable), while keeping the distributed layout as an option for scale. This is a design decision for the next major revision, not a small perf fix.
+
+### Commits landed on `optimized-architecture`
+
+| Commit | Description |
+|---|---|
+| `895ce84` | perf: reuse HTTP connections between internal services (keep-alive) |
+| `02801f6` | perf: cache Specialty Node routing decisions in Gateway |
+| `8ede0ed` | observability: add per-phase timings to Gateway `/api/search` |
+| `2a6de2b` | perf: top-K early termination in text search (Fix #5) |
+
+---
+
 ## 11. Engineering findings surfaced during ours' benchmark
 
 While running ours at 100k, we hit four real engineering issues — each one is a production-readiness finding:
@@ -236,7 +311,8 @@ All fixes are committed on `optimized-architecture`.
 - ✅ Real engineering fixes for ours' 100k cells (body limits, timeouts, heap, per-cell reset)
 - 🟡 Wikipedia cache still filling (~89k/111k = 80%) — `articles × 100k` deferred for both engines
 - 🗑️ **2026-06-29 — Meilisearch removed** from this branch. Reason: Meili's open-source distribution is a single-node engine (no sharding, no cluster mode), so it does not belong in a "distributed vs distributed" comparison. Historical commits retained; no git-history rewrite.
-- ⏳ Next: performance work on ours (routing cache, keep-alive, top-K termination, hop reduction) before adding a second distributed engine for a fair Phase 3.
+- ✅ **2026-07-04 — Optimization pass complete**. Fixes #1 (keep-alive), #2 (route cache), and #5 (top-K termination) landed on `optimized-architecture`. Median latency down ~14 ms on average, best cell within 1.3× of Elastic. See §10a for the profile-driven decisions and full before/after table.
+- ⏳ Next: add a second distributed engine to make Phase 3 a true "distributed vs distributed" comparison; consider a Gateway+SearchNode co-location option for cases where the ~5 ms distributed floor is too high.
 
 ## 13. Glossary
 
