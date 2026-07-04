@@ -13,22 +13,6 @@ services:
       - ./data:/data
       - sockets:/var/sockets
 
-  specialty-node:
-    build: ./specialty-node
-    container_name: specialty-node
-    ports:
-      - "6000:6000"
-    environment:
-      - PORT=6000
-      - SOCKET_PATH=/var/sockets/specialty.sock
-      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
-    depends_on:
-      - schema-registry
-    networks:
-      - search-network
-    volumes:
-      - sockets:/var/sockets
-
   gateway:
     build: ./gateway
     container_name: gateway
@@ -37,19 +21,15 @@ services:
     environment:
       - NODE_ENV=production
       - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
-      - SPECIALTY_NODE_URL=unix:/var/sockets/specialty.sock
-      - INDEX_NODE_URL=unix:/var/sockets/index.sock
       - SHARD_CLUSTER_URL=unix:/var/sockets/shard.sock
       - TEXT_NODE_URL=unix:/var/sockets/text.sock
       - METADATA_NODE_URL=unix:/var/sockets/metadata.sock
       - TAGS_NODE_URL=unix:/var/sockets/tags.sock
     depends_on:
       - schema-registry
-      - specialty-node
       - text-node
       - metadata-node
       - tags-node
-      - index-node
       - shard-cluster
     networks:
       - search-network
@@ -109,31 +89,6 @@ services:
       - search-network
     volumes:
       - ./data:/data
-      - sockets:/var/sockets
-
-  index-node:
-    build: ./index-node
-    container_name: index-node
-    ports:
-      - "4001:4001"
-    environment:
-      - NODE_ID=index-node
-      - PORT=4001
-      - SOCKET_PATH=/var/sockets/index.sock
-      - SCHEMA_REGISTRY_URL=unix:/var/sockets/schema.sock
-      - SHARD_CLUSTER_URL=unix:/var/sockets/shard.sock
-      - TEXT_NODE_URL=unix:/var/sockets/text.sock
-      - METADATA_NODE_URL=unix:/var/sockets/metadata.sock
-      - TAGS_NODE_URL=unix:/var/sockets/tags.sock
-    depends_on:
-      - schema-registry
-      - shard-cluster
-      - text-node
-      - metadata-node
-      - tags-node
-    networks:
-      - search-network
-    volumes:
       - sockets:/var/sockets
 
   shard-cluster:

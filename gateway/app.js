@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const { SpecialtyClient } = require('./specialtyClient');
 const { SearchClient } = require('./searchClient');
 const { IndexClient } = require('./indexClient');
 const { ShardClient } = require('./shardClient');
 const { SchemaClient } = require('./schemaClient');
+const { SearchIndexClient } = require('./searchIndexClient');
 const { RouteCache } = require('./routeCache');
 const { parseQuery: localParseQuery } = require('./routeLocal');
 
@@ -12,24 +12,27 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
-const SPECIALTY_NODE_URL = process.env.SPECIALTY_NODE_URL || 'http://specialty-node:6000';
-const INDEX_NODE_URL = process.env.INDEX_NODE_URL || 'http://index-node-1:4001';
 const SHARD_CLUSTER_URL = process.env.SHARD_CLUSTER_URL || 'http://shard-cluster:7000';
 const SCHEMA_REGISTRY_URL = process.env.SCHEMA_REGISTRY_URL || 'http://schema-registry:5000';
+const SEARCH_NODE_URLS = {
+    text: process.env.TEXT_NODE_URL || 'http://text-node:3001',
+    metadata: process.env.METADATA_NODE_URL || 'http://metadata-node:3002',
+    tags: process.env.TAGS_NODE_URL || 'http://tags-node:3003',
+};
 
-let specialtyClient = new SpecialtyClient(SPECIALTY_NODE_URL);
 let searchClient = new SearchClient();
-let indexClient = new IndexClient(INDEX_NODE_URL);
 let shardClient = new ShardClient(SHARD_CLUSTER_URL);
 let schemaClient = new SchemaClient(SCHEMA_REGISTRY_URL);
+let searchIndexClient = new SearchIndexClient(SEARCH_NODE_URLS);
+let indexClient = new IndexClient({ schemaClient, shardClient, searchIndexClient });
 const routeCache = new RouteCache();
 const schemaCache = new Map();
 
-function setSpecialtyClient(client) { specialtyClient = client; }
 function setSearchClient(client) { searchClient = client; }
 function setIndexClient(client) { indexClient = client; }
 function setShardClient(client) { shardClient = client; }
 function setSchemaClient(client) { schemaClient = client; }
+function setSearchIndexClient(client) { searchIndexClient = client; }
 
 function mergeResults(nodeResults) {
     const merged = new Map();
@@ -66,9 +69,10 @@ app.post('/api/search', async (req, res) => {
     timings.parseInput = dtMs(t0);
 
     // ------ Phase 1: routing decision ------
-    //   1. per-query LRU cache (fastest — repeated queries)
-    //   2. local parseQuery mirror of the Specialty Node, using cached schema
-    //   3. remote Specialty Node call (fallback if local errors)
+    //   Query Splitter logic runs in-process (was a separate service before
+    //   Option 1). Two levels of caching:
+    //     1. per-query LRU cache (fastest — repeated queries)
+    //     2. local parseQuery using the cached schema for this domain
     const tRoute = process.hrtime.bigint();
     let routing = routeCache.get(domain, query);
     let routeSource = 'cache';
@@ -78,24 +82,19 @@ app.post('/api/search', async (req, res) => {
             try {
                 schema = await schemaClient.fetch(domain);
                 if (schema) schemaCache.set(domain, schema);
-            } catch (_e) { /* fall through to remote route */ }
-        }
-        if (schema) {
-            const local = localParseQuery(query, schema);
-            if (!local.error) {
-                routing = { domain, query, nodes: local.nodes };
-                routeSource = 'local';
-            }
-        }
-        if (!routing) {
-            try {
-                routing = await specialtyClient.route(domain, query);
-                routeSource = 'remote';
             } catch (err) {
-                const status = err.status || 500;
-                return res.status(status).json({ error: err.message });
+                return res.status(502).json({ error: `Schema fetch failed: ${err.message}` });
             }
         }
+        if (!schema) {
+            return res.status(404).json({ error: `Domain not found: ${domain}` });
+        }
+        const local = localParseQuery(query, schema);
+        if (local.error) {
+            return res.status(400).json({ error: local.error });
+        }
+        routing = { domain, query, nodes: local.nodes };
+        routeSource = 'local';
         routeCache.set(domain, query, routing);
     }
     timings.route = dtMs(tRoute);
@@ -191,4 +190,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app, setSpecialtyClient, setSearchClient, setIndexClient, setShardClient, setSchemaClient };
+module.exports = { app, setSearchClient, setIndexClient, setShardClient, setSchemaClient, setSearchIndexClient };
