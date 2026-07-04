@@ -12,11 +12,13 @@ class SearchClient {
         this.urls = urls || NODE_URLS;
     }
 
-    async search(nodeName, { domain, query, filters }) {
+    async search(nodeName, { domain, query, filters, limit }) {
         const url = this.urls[nodeName];
         if (!url) return { results: [] };
         try {
-            const res = await axios.post(`${url}/search`, { domain, query, filters }, { timeout: 5000, httpAgent });
+            const body = { domain, query, filters };
+            if (Number.isInteger(limit) && limit > 0) body.limit = limit;
+            const res = await axios.post(`${url}/search`, body, { timeout: 5000, httpAgent });
             return { results: res.data.results || [] };
         } catch (err) {
             return { results: [], error: err.message };

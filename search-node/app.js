@@ -67,12 +67,18 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
     });
 
     app.post('/search', async (req, res) => {
-        const { domain, query, filters = {} } = req.body || {};
+        const { domain, query, filters = {}, limit } = req.body || {};
         if (!domain) return res.status(400).json({ error: 'domain is required' });
         if (!query && query !== '') return res.status(400).json({ error: 'query is required' });
 
         const schema = await state.schemaClient.fetch(domain);
         if (!schema) return res.status(404).json({ error: `Domain not found: ${domain}` });
+
+        // Convert incoming limit → topK for the index. When Gateway wants
+        // limit=20, we ask the index for a bit more (buffer for filter
+        // rejections). No limit → return everything (backward compat).
+        const parsedLimit = Number.isInteger(limit) && limit > 0 ? limit : null;
+        const indexTopK = parsedLimit ? Math.max(parsedLimit * 2, parsedLimit + 30) : null;
 
         if (state.specialty === 'text' && TEXT_ALGORITHM === 'inverted') {
             const fields = Array.isArray(schema.text) ? schema.text : [];
@@ -85,13 +91,14 @@ function createApp({ specialty, nodeId, schemaClient, docStore }) {
                 state.textIndices.set(domain, idx);
                 for (const d of state.docStore.list(domain)) idx.add(d, fields);
             }
-            const hits = idx.search(query, fields);
+            const hits = idx.search(query, fields, indexTopK ? { limit: indexTopK } : undefined);
             const results = [];
             for (const h of hits) {
                 const doc = state.docStore.get(domain, h.id);
                 if (!doc) continue;
                 if (!applyFilters(doc, filters)) continue;
                 results.push({ id: h.id, score: h.score });
+                if (parsedLimit && results.length >= parsedLimit) break;
             }
             return res.json({ domain, query, specialty: state.specialty, nodeId: state.nodeId, results });
         }

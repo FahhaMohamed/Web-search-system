@@ -80,7 +80,7 @@ app.post('/api/search', async (req, res) => {
     const nodes = (routing.nodes || []).filter(n => (n.confidence || 0) >= minConfidence);
     timings.nodeCount = nodes.length;
     const nodeResponses = await Promise.all(nodes.map(async (n) => {
-        const out = await searchClient.search(n.name, { domain, query, filters });
+        const out = await searchClient.search(n.name, { domain, query, filters, limit });
         return {
             nodeName: n.name,
             confidence: n.confidence,
