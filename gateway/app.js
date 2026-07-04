@@ -60,7 +60,7 @@ app.post('/api/search', async (req, res) => {
     const dtMs = (from) => Number(process.hrtime.bigint() - from) / 1_000_000;
     const timings = {};
 
-    const { domain, query, filters = {}, limit = 20, minConfidence = 0 } = req.body || {};
+    const { domain, query, filters = {}, limit = 20, minConfidence = 0.5 } = req.body || {};
     if (!query) return res.status(400).json({ error: 'query is required' });
     if (!domain) return res.status(400).json({ error: 'domain is required' });
     timings.parseInput = dtMs(t0);
@@ -103,9 +103,17 @@ app.post('/api/search', async (req, res) => {
     timings.routeSource = routeSource;
 
     // ------ Phase 2: fan-out to search nodes ------
+    //   Filter by minConfidence to skip noise nodes (default 0.5). If the
+    //   filter would leave zero nodes, keep the top-1 as a safety net so
+    //   we never accidentally return empty results for a valid query.
     const tFanout = process.hrtime.bigint();
-    const nodes = (routing.nodes || []).filter(n => (n.confidence || 0) >= minConfidence);
+    const allNodes = routing.nodes || [];
+    let nodes = allNodes.filter(n => (n.confidence || 0) >= minConfidence);
+    if (nodes.length === 0 && allNodes.length > 0) {
+        nodes = [allNodes[0]];
+    }
     timings.nodeCount = nodes.length;
+    timings.nodesSkipped = allNodes.length - nodes.length;
     const nodeResponses = await Promise.all(nodes.map(async (n) => {
         const out = await searchClient.search(n.name, { domain, query, filters, limit });
         return {
