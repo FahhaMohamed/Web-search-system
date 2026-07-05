@@ -6,6 +6,7 @@ const { ShardClient } = require('./shardClient');
 const { SchemaClient } = require('./schemaClient');
 const { SearchIndexClient } = require('./searchIndexClient');
 const { RouteCache } = require('./routeCache');
+const { SearchResponseCache } = require('./searchResponseCache');
 const { parseQuery: localParseQuery } = require('./routeLocal');
 
 const app = express();
@@ -26,6 +27,7 @@ let schemaClient = new SchemaClient(SCHEMA_REGISTRY_URL);
 let searchIndexClient = new SearchIndexClient(SEARCH_NODE_URLS);
 let indexClient = new IndexClient({ schemaClient, shardClient, searchIndexClient });
 const routeCache = new RouteCache();
+const searchResponseCache = new SearchResponseCache();
 const schemaCache = new Map();
 
 function setSearchClient(client) { searchClient = client; }
@@ -67,6 +69,16 @@ app.post('/api/search', async (req, res) => {
     if (!query) return res.status(400).json({ error: 'query is required' });
     if (!domain) return res.status(400).json({ error: 'domain is required' });
     timings.parseInput = dtMs(t0);
+
+    // ------ Phase 0: full-response cache (Fix H) ------
+    //   Skips everything below for repeated queries. Same optimization
+    //   Elastic/Solr apply via their built-in request/query caches.
+    const cachedBody = searchResponseCache.get(domain, query, filters, limit);
+    if (cachedBody) {
+        // Send a fresh copy with cache-hit timings so callers can measure.
+        const t = { total: dtMs(t0), cacheHit: true };
+        return res.json({ ...cachedBody, timestamp: new Date().toISOString(), _timings: t });
+    }
 
     // ------ Phase 1: routing decision ------
     //   Query Splitter logic runs in-process (was a separate service before
@@ -161,6 +173,14 @@ app.post('/api/search', async (req, res) => {
     };
     timings.shape = dtMs(tShape);
     timings.total = dtMs(t0);
+
+    // Populate Fix H cache — subsequent identical queries skip everything above.
+    // Store WITHOUT _timings/timestamp; those are re-stamped fresh on each hit.
+    const bodyForCache = { ...body };
+    delete bodyForCache._timings;
+    delete bodyForCache.timestamp;
+    searchResponseCache.set(domain, query, filters, limit, bodyForCache);
+
     res.json(body);
 });
 
@@ -171,6 +191,9 @@ app.post('/api/index', async (req, res) => {
 
     try {
         const result = await indexClient.index(domain, documents);
+        // New docs invalidate cached search responses. Simplest correct
+        // policy: drop the whole search cache (rebuild on the next query).
+        searchResponseCache.clear();
         res.json(result);
     } catch (err) {
         const status = err.status || 500;
