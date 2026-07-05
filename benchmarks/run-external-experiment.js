@@ -27,6 +27,8 @@ const axios = require('axios');
 const { execSync } = require('child_process');
 
 const elasticRunner = require('./harness/run-elastic');
+const opensearchRunner = require('./harness/run-opensearch');
+const solrRunner = require('./harness/run-solr');
 const oursRunner = require('./harness/run-ours');
 const loadWikipedia = require('./loaders/load-wikipedia');
 const loadArxiv = require('./loaders/load-arxiv');
@@ -45,6 +47,28 @@ const ENGINES = {
         index: (args) => elasticRunner.indexElastic(args),
         search: (args) => elasticRunner.runQueriesElastic(args),
         teardown: (args) => elasticRunner.teardownElastic(args),
+    },
+    opensearch: {
+        // OpenSearch is a fork of Elasticsearch 7.10 — same query DSL and
+        // bulk API. We run it on 9201 so it can coexist with Elastic (9200).
+        healthUrl: 'http://localhost:9201',
+        configFile: (domain) => path.join(SETUP, `opensearch-mapping-${domain}.json`),
+        setup: (args) => opensearchRunner.setupOpenSearch({ domain: args.domain, mapping: args.config }),
+        index: (args) => opensearchRunner.indexOpenSearch(args),
+        search: (args) => opensearchRunner.runQueriesOpenSearch(args),
+        teardown: (args) => opensearchRunner.teardownOpenSearch(args),
+    },
+    solr: {
+        // Solr uses cores (precreated at container startup — see
+        // docker-compose.external.yml). /solr/admin/ping is per-core,
+        // so use the top-level system info endpoint instead — always
+        // returns 200 whenever Solr is up.
+        healthUrl: 'http://localhost:8983/solr/admin/info/system',
+        configFile: (domain) => path.join(SETUP, `solr-schema-${domain}.json`),
+        setup: (args) => solrRunner.setupSolr({ domain: args.domain }),
+        index: (args) => solrRunner.indexSolr(args),
+        search: (args) => solrRunner.runQueriesSolr(args),
+        teardown: (args) => solrRunner.teardownSolr(args),
     },
     ours: {
         // Healthcheck through the Schema Registry — both must be up for

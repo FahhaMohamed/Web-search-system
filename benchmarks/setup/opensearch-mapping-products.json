@@ -1,0 +1,13 @@
+{
+  "mappings": {
+    "properties": {
+      "id":                 { "type": "keyword" },
+      "product_name":       { "type": "text" },
+      "ingredients_text":   { "type": "text" },
+      "nutriscore_numeric": { "type": "integer" },
+      "energy_100g":        { "type": "float" },
+      "categories":         { "type": "keyword" },
+      "brands":             { "type": "keyword" }
+    }
+  }
+}

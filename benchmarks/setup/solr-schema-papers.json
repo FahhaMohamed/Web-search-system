@@ -1,0 +1,4 @@
+{
+  "note": "Solr schemaless mode: fields are auto-created from indexed docs. No mapping needed. This file exists only to satisfy the harness's per-engine config-file lookup.",
+  "core": "papers"
+}

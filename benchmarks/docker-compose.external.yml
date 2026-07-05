@@ -15,6 +15,35 @@ services:
     networks:
       - external-bench-network
 
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: bench-opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9201:9200"
+    networks:
+      - external-bench-network
+
+  solr:
+    image: solr:9.5
+    container_name: bench-solr
+    ports:
+      - "8983:8983"
+    networks:
+      - external-bench-network
+    command:
+      - bash
+      - -c
+      - "precreate-core articles; precreate-core papers; precreate-core products; exec solr-foreground"
+
 networks:
   external-bench-network:
     driver: bridge

@@ -138,10 +138,76 @@ function toOurs(canonical, domain) {
     throw new Error(`unknown query kind: ${canonical.kind}`);
 }
 
+/**
+ * OpenSearch is a fork of Elasticsearch 7.10.2 — same query DSL and
+ * bulk API, so we can literally reuse the Elastic translator. Kept as
+ * a named export so the harness reads cleanly.
+ */
+function toOpenSearch(canonical, domain) {
+    return toElastic(canonical, domain);
+}
+
+/**
+ * Solr uses Lucene query syntax over its /select endpoint. Escape any
+ * Solr-special characters in tag values so multi-word or punctuated
+ * values pass through unaltered. Range values map directly.
+ */
+const SOLR_ESCAPE_RE = /([+\-!(){}[\]^"~*?:\\/&|])/g;
+function solrEscape(v) {
+    return String(v).replace(SOLR_ESCAPE_RE, '\\$1');
+}
+
+function toSolr(canonical, domain) {
+    if (!canonical || typeof canonical !== 'object') {
+        throw new Error('canonical query is required');
+    }
+    const schema = getSchema(domain);
+
+    if (canonical.kind === 'text') {
+        if (!canonical.tokens) throw new Error('text query: tokens is required');
+        // Search across all text fields — build an OR of field:token clauses.
+        const tokens = String(canonical.tokens).trim().split(/\s+/);
+        const parts = [];
+        for (const field of schema.text) {
+            for (const tok of tokens) parts.push(`${field}:${solrEscape(tok)}`);
+        }
+        return { q: parts.join(' OR '), rows: 20 };
+    }
+
+    if (canonical.kind === 'range') {
+        if (!canonical.field) throw new Error('range query: field is required');
+        if (canonical.value === undefined) throw new Error('range query: value is required');
+        const v = canonical.value;
+        let range;
+        switch (canonical.op) {
+            case '>':  range = `{${v} TO *]`; break;
+            case '>=': range = `[${v} TO *]`; break;
+            case '<':  range = `[* TO ${v}}`; break;
+            case '<=': range = `[* TO ${v}]`; break;
+            case '=':  return { q: `${canonical.field}:${v}`, rows: 20 };
+            default: throw new Error(`unsupported range op: ${canonical.op}`);
+        }
+        return { q: `${canonical.field}:${range}`, rows: 20 };
+    }
+
+    if (canonical.kind === 'term') {
+        if (!canonical.field) throw new Error('term query: field is required');
+        if (canonical.value === undefined) throw new Error('term query: value is required');
+        // Solr's default text-field behavior tokenizes on whitespace, so a
+        // multi-word tag value stored as one phrase needs a phrase query.
+        return { q: `${canonical.field}:"${solrEscape(canonical.value)}"`, rows: 20 };
+    }
+
+    throw new Error(`unknown query kind: ${canonical.kind}`);
+}
+
 module.exports = {
     DOMAIN_SCHEMAS,
     getSchema,
     toElastic,
     toOurs,
+    toOpenSearch,
+    toSolr,
     oursTagSlug,
+    solrEscape,
 };
