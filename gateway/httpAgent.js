@@ -18,6 +18,9 @@ const http = require('http');
 
 module.exports = new http.Agent({
     keepAlive: true,
-    maxSockets: 100,
+    // 500 covers ~100 concurrent client fanouts (each producing 1-3 internal
+    // requests) with headroom. Below 200 we saw pool-exhaustion errors under
+    // the concurrent-QPS bench at c=100.
+    maxSockets: 500,
     keepAliveMsecs: 30000,
 });
